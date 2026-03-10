@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AccountController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
@@ -41,5 +42,11 @@ Route::middleware(['role:admin'])->group(function () {
 // For customer account
 Route::middleware(['auth'])->group(function () {
     Route::get('/account', [App\Http\Controllers\AccountController::class, 'edit'])->name('account.edit');
-    Route::get('/account', [App\Http\Controllers\AccountController::class, 'update'])->name('account.update');
+    Route::put('/account', [App\Http\Controllers\AccountController::class, 'update'])->name('account.update');
+
+    Route::get('/account/change-password', [AccountController::class, 'changePasswordForm'])->name('account.password.form');
+    Route::post('/account/change-password', [AccountController::class, 'changePassword'])->name('account.password.update');
+
+    Route::get('/account/orders', [App\Http\Controllers\OrdersController::class, 'index'])->name('account.orders');
 });
+
