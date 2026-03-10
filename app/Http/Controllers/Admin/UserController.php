@@ -8,10 +8,18 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
-        return view('admin.users.index', compact('users'));
+        $status = $request->get('status');
+        
+        $users = User::query();
+
+        if ($status && in_array($status, ['Active', 'Inactive'])) {
+            $users->where('status', $status);
+        }
+
+        $users = $users->orderBy('created_at', 'desc')->get();
+        return view('admin.users.index', compact('users', 'status'));
     }
 
     public function create()
@@ -47,10 +55,18 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name'  => 'required|string|max:255',
-            'email' => 'required|email',
-            'role'  => 'required|string',
+            'name'       => 'required|string|max:255',
+            'contact_no' =>'nullable|string|max:20',
+            'address'    => 'nullable|string|max:255',
+            'role'       => 'required|string',
+            'photo'      => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
+
+        $data = $request->only(['name', 'contact_no', 'address']);
+
+        if ($request->hasFile('photo')) {
+            $data['photo'] = $request->file('photo')->store('photos', 'public');
+        }
 
         // Update basic info
         $user->update($request->only('name', 'email'));
@@ -66,6 +82,15 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully!');
+    }
+
+    // Updating Status
+    public function toggleStatus(User $user)
+    {
+        $user->status = $user->status === 'Active' ? 'Inactive' : 'Active';
+        $user->save();
+
+        return redirect()->route('admin.users.index')->with('success', 'User status updated successfully!');
     }
 
     // Optional: keep role update separate if you want quick dropdown changes

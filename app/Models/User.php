@@ -26,6 +26,9 @@ class User extends Authenticatable
         'email',
         'password',
         'photo',
+        'contact_no',
+        'address',
+        'status',
     ];
 
     /**
@@ -49,5 +52,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function getFormattedRolesAttribute()
+    {
+        return $this->getRoleNames()->map(fn($role) => ucfirst($role));
     }
 }
