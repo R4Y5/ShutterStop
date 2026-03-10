@@ -19,7 +19,7 @@ class UserController extends Controller
         }
 
         $users = $users->orderBy('created_at', 'desc')->get();
-        return view('admin.users.index', compact('users', 'status'));
+        return view('admin.users.index', compact('users'));
     }
 
     public function create()
@@ -64,9 +64,19 @@ class UserController extends Controller
 
         $data = $request->only(['name', 'contact_no', 'address']);
 
+        // Handle photo upload
         if ($request->hasFile('photo')) {
+
+            // Deleting old photo if exists
+            if ($user->photo) {
+                \Storage::disk('public')->delete($user->photo);
+            }
+
+            // Save new photo
             $data['photo'] = $request->file('photo')->store('photos', 'public');
         }
+
+        $user->update($data);
 
         // Update basic info
         $user->update($request->only('name', 'email'));

@@ -2,6 +2,13 @@
 
 @section('content')
 <div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}">Admin</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}">Users</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit User</li>
+        </ol>
+    </nav>
     <h1>Edit User</h1>
 
     <form action="{{ route('admin.users.update', $user) }}" method="POST" enctype="multipart/form-data">
@@ -48,6 +55,7 @@
 
         <button type="submit" class="btn btn-success">Save Changes</button>
         <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">Cancel</a>
+        <a href="{{ route('admin.users.index') }}" class="btn btn-outline-primary">Back to User List</a>
     </form>
 </div>
 @endsection

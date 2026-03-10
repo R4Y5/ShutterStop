@@ -37,3 +37,9 @@ Route::middleware(['role:admin'])->group(function () {
     Route::patch('/admin/users/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('admin.users.toggleStatus');
 });
 
+
+// For customer account
+Route::middleware(['auth'])->group(function () {
+    Route::get('/account', [App\Http\Controllers\AccountController::class, 'edit'])->name('account.edit');
+    Route::get('/account', [App\Http\Controllers\AccountController::class, 'update'])->name('account.update');
+});

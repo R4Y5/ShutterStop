@@ -10,15 +10,7 @@
 
     <div class="mb-3">
         <a href="{{ route('admin.users.create') }}" class="btn btn-primary">Create New User</a>
-
-        <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex">
-            <select name="status" class="form-select me-2" onchange="this.form.submit()">
-                <option value="">Show All</option>
-                <option value="Active" {{ request('status') === 'Active' ? 'selected' : '' }}>Active</option>
-                <option value="Inactive" {{ request('status') === 'Inactive' ? 'selected' : '' }}>Inactive</option>
-            </select>
-            <noscript><button type="submit" class="btn btn-secondary">Filter</button></noscript>
-        </form>
+        <a href="/admin" class="btn btn-outline-secondary">Back to Admin Dashboard</a>
     </div>
 
     <table class="table">
