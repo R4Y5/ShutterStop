@@ -13,6 +13,11 @@
         </div>
 
         <div class="bg-white shadow p-4 rounded">
+            <h2 class="text-xl font-semibold mb-2">Manage Categories</h2>
+            <a href="{{ route('categories.index') }}" class="btn btn-primary">Go to Categories</a>
+        </div>
+    
+        <div class="bg-white shadow p-4 rounded">
             <h2 class="text-xl font-semibold mb-2">Manage Orders</h2>
             <a href="{{ url('/orders') }}" class="btn btn-primary">Go to Orders</a>
         </div>

@@ -110,15 +110,26 @@ class ProductController extends Controller
     /**
      * Products DataTable
      */
-    public function getData()
+    public function getData(Request $request)
     {
         $query = Product::with('category')->select('products.*');
+
+        if ($request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->brand) {
+            $query->where('brand', $request->brand);
+        }
 
         return DataTables::of($query)
             ->addColumn('photo', function ($product) {
                 return $product->photo
                     ? '<img src="'.asset('storage/'.$product->photo).'" width="50" class="rounded">'
                     : '<span class="text-muted">No photo</span>';
+            })
+            ->addColumn('category', function ($product) {
+                return $product->category ? $product->category->name : 'Uncategorized';
             })
             ->addColumn('actions', function ($product) {
                 return view('products.partials.actions', compact('product'))->render();

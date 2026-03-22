@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
@@ -33,6 +34,9 @@ Route::get('/admin/users/data', [App\Http\Controllers\Admin\UserController::clas
 
 // Products DataTable
 Route::get('/products/data', [ProductController::class, 'getData'])->name('products.data');
+
+// Categories
+Route::resource('categories', CategoryController::class);
 
 Route::middleware(['role:admin'])->group(function () {
     Route::get('/admin/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
