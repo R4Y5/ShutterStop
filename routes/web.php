@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
@@ -29,7 +30,10 @@ Route::get('/shop', function () {
 // User DataTable
 Route::get('/admin/users/data', [App\Http\Controllers\Admin\UserController::class, 'getData'])
     ->name('admin.users.data');
-    
+
+// Products DataTable
+Route::get('/products/data', [ProductController::class, 'getData'])->name('products.data');
+
 Route::middleware(['role:admin'])->group(function () {
     Route::get('/admin/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
     Route::get('/admin/users/create', [App\Http\Controllers\Admin\UserController::class, 'create'])->name('admin.users.create');
