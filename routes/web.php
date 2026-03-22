@@ -26,6 +26,10 @@ Route::get('/shop', function () {
     return view('shop.index');
 })->middleware('role:customer');
 
+// User DataTable
+Route::get('/admin/users/data', [App\Http\Controllers\Admin\UserController::class, 'getData'])
+    ->name('admin.users.data');
+    
 Route::middleware(['role:admin'])->group(function () {
     Route::get('/admin/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
     Route::get('/admin/users/create', [App\Http\Controllers\Admin\UserController::class, 'create'])->name('admin.users.create');
@@ -36,6 +40,11 @@ Route::middleware(['role:admin'])->group(function () {
 
     // New toggle route
     Route::patch('/admin/users/{user}/toggle-status', [App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('admin.users.toggleStatus');
+
+    // Manage products function
+    Route::middleware(['role:admin'])->group(function () {
+        Route::resource('/products', App\Http\Controllers\ProductController::class);
+    });
 });
 
 

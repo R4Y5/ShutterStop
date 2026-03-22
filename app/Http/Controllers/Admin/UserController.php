@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
@@ -62,24 +63,25 @@ class UserController extends Controller
             'photo'      => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
-        $data = $request->only(['name', 'contact_no', 'address']);
+        $data = $request->only(['name', 'email', 'contact_no', 'address']);
 
         // Handle photo upload
         if ($request->hasFile('photo')) {
 
             // Deleting old photo if exists
-            if ($user->photo) {
-                \Storage::disk('public')->delete($user->photo);
+            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                Storage::disk('public')->delete($user->photo);
             }
 
             // Save new photo
             $data['photo'] = $request->file('photo')->store('photos', 'public');
         }
 
+        // Update user record
         $user->update($data);
 
         // Update basic info
-        $user->update($request->only('name', 'email'));
+        //$user->update($request->only('name', 'email'));
 
         // Update role
         $user->syncRoles([$request->role]);
@@ -108,5 +110,31 @@ class UserController extends Controller
     {
         $user->syncRoles([$request->role]);
         return redirect()->back()->with('success', 'Role updated successfully!');
+    }
+
+    public function getData()
+    {
+        $users = User::with('roles')->select('users.*');
+
+        return DataTables::of($users)
+        ->addColumn('photo', function ($user) {
+            if ($user->photo) {
+                return '<img src="'.asset('storage/'.$user->photo).'" width="50" class="rounded">';
+            }
+            return '<span class="text-muted">No photo</span>';
+        })
+        ->addColumn('role', function ($user) {
+            return $user->roles->pluck('name')->implode(', ') ?: 'None';
+        })
+        ->addColumn('status', function ($user) {
+            return $user->status === 'Active'
+                ? '<span class="badge bg-success">Active</span>'
+                : '<span class="badge bg-danger">Inactive</span>';
+        })
+        ->addColumn('actions', function ($user) {
+            return view('users.partials.actions', compact('user'))->render();
+        })
+        ->rawColumns(['photo','status','actions'])
+        ->make(true);
     }
 }

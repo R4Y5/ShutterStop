@@ -13,9 +13,10 @@
         <a href="/admin" class="btn btn-outline-secondary">Back to Admin Dashboard</a>
     </div>
 
-    <table class="table">
+    <table id="users-table" class="table table-bordered table-striped">
         <thead>
             <tr>
+                <th>Photo</th>
                 <th>Account ID</th>
                 <th>Name</th>
                 <th>Email</th>
@@ -25,44 +26,31 @@
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
-            @foreach($users as $user)
-                <tr>
-                    <th>{{ $user->id }}</td>
-                    <td>{{ $user->name }}</td>
-                    <td>{{ $user->email }}</td>
-                    <td>{{ $user->formatted_roles->implode(', ') ?: 'None' }}</td>
-                    <td>
-                        @if($user->status === 'Active')
-                            <span class="badge bg-success">Active</span>
-                        @else
-                            <span class="badge bg-danger">Inactive</span>
-                        @endif
-                    </td>
-                    <td>{{ $user->created_at->format('Y-m-d') }}</td>
-                    <td>
-                        <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-warning btn-sm">Edit</a>
-
-                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm"
-                                onclick="return confirm('Are you sure you want to delete this user?')">
-                                Delete
-                            </button>
-                        </form>
-
-                        <form action="{{ route('admin.users.toggleStatus', $user) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="btn btn-info btn-sm">
-                                {{ $user->status === 'Active' ? 'Deactivate' : 'Activate' }}
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
     </table>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+$(function() {
+    $('#users-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: '{{ route('admin.users.data') }}',
+        columns: [
+            { data: 'photo', name: 'photo', orderable: false, searchable: false },
+            { data: 'id', name: 'id' },
+            { data: 'name', name: 'name' },
+            { data: 'email', name: 'email' },
+            { data: 'role', name: 'role', orderable: false },
+            { data: 'status', name: 'status', orderable: false },
+            { data: 'created_at', name: 'created_at' },
+            { data: 'actions', name: 'actions', orderable: false, searchable: false }
+        ],
+        pageLength: 10,
+        order: [[2, 'asc']], // default sort by Name
+        responsive: true
+    });
+});
+</script>
 @endsection

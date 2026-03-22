@@ -27,12 +27,12 @@
 
         <div class="mb-3">
             <label>Contact No.</label>
-            <input type="text" name="contact_no" value="{{ $user->contact_no }}" class="form-control">
+            <input type="text" name="contact_no" value="{{ old('contact_no', $user->contact_no) }}" class="form-control">
         </div>
 
         <div class="mb-3">
             <label>Address</label>
-            <textarea name="address" class="form-control">{{ $user->address }}</textarea>
+            <textarea name="address" class="form-control">{{ old('address', $user->address) }}</textarea>
         </div>
 
         <div class="mb-3">
