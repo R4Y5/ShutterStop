@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 
 class RegisterController extends Controller
 {
@@ -30,6 +31,13 @@ class RegisterController extends Controller
      */
     protected $redirectTo = '/home';
 
+    protected function authenticated(Request $request, $user)
+    {
+        if (!$user->hasVerifiedEmail()) {
+            auth()->logout();
+            return redirect('/login')->with('error', 'Please verify your email before logging in.');
+        }
+    }
     /**
      * Create a new controller instance.
      *
