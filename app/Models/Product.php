@@ -13,7 +13,7 @@ class Product extends Model
     use SoftDeletes;
     
     protected $dates = ['deleted_at'];
-    
+
     protected $fillable = [
         'name',
         'brand',
@@ -32,5 +32,10 @@ class Product extends Model
     public function photos()
     {
         return $this->hasMany(ProductPhoto::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
     }
 }

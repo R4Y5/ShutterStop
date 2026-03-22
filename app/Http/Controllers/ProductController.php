@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Product;
 use App\Models\Category;
-use App\Imports\ProductsImport;
+use App\Http\Imports\ProductsImport;
 use Yajra\DataTables\Facades\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -51,11 +51,20 @@ class ProductController extends Controller
 
         // Handle multiple photo uploads
         if ($request->hasFile('photos')) {
-            foreach ($request->file('photos') as $photo) {
-                $path = $photo->store('products', 'public');
-                $product->photos()->create(['path' => $path]);
-            }
+    foreach ($request->file('photos') as $index => $photo) {
+        $filename = time() . '-' . $photo->getClientOriginalName();
+        $path = $photo->storeAs('products', $filename, 'public');
+
+        // Save first photo as the main product photo
+        if ($index === 0) {
+            $product->photo = $path;
+            $product->save();
         }
+
+        // Save all photos into product_photos table
+        $product->photos()->create(['path' => $path]);
+    }
+}
 
         return redirect()->route('products.index')->with('success', 'Product added successfully!');
     }
@@ -89,11 +98,20 @@ class ProductController extends Controller
         ]));
 
         if ($request->hasFile('photos')) {
-            foreach ($request->file('photos') as $photo) {
-                $path = $photo->store('products', 'public');
-                $product->photos()->create(['path' => $path]);
-            }
+    foreach ($request->file('photos') as $index => $photo) {
+        $filename = time() . '-' . $photo->getClientOriginalName();
+        $path = $photo->storeAs('products', $filename, 'public');
+
+        // Save first photo as the main product photo
+        if ($index === 0) {
+            $product->photo = $path;
+            $product->save();
         }
+
+        // Save all photos into product_photos table
+        $product->photos()->create(['path' => $path]);
+    }
+}
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully!');
     }
@@ -182,22 +200,33 @@ class ProductController extends Controller
     }
 
     public function getTrashedData(Request $request)
-{
-    $query = Product::onlyTrashed()->with('category','photos')->select('products.*');
+    {
+        $query = Product::onlyTrashed()->with('category')->select('products.*');
 
-    return DataTables::of($query)
-        ->addColumn('photo', function ($product) {
-            if ($product->photos->count()) {
-                $first = $product->photos->first();
-                return '<img src="'.asset('storage/'.$first->path).'" width="50" class="rounded">';
-            }
-            return '<span class="text-muted">No photo</span>';
-        })
-        ->addColumn('category', fn($product) => $product->category ? $product->category->name : 'Uncategorized')
-        ->addColumn('actions', fn($product) => view('products.partials.actions', compact('product'))->render())
-        ->editColumn('deleted_at', fn($product) => $product->deleted_at->format('Y-m-d'))
-        ->rawColumns(['photo','actions'])
-        ->make(true);
-}
+        if ($request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
 
+        if ($request->brand) {
+            $query->where('brand', $request->brand);
+        }
+
+        return DataTables::of($query)
+            ->addColumn('photo', function ($product) {
+                if ($product->photos->count()) {
+                    $first = $product->photos->first();
+                    return '<img src="'.asset('storage/'.$first->path).'" width="50" class="rounded">';
+                }
+                return '<span class="text-muted">No photo</span>';
+            })
+            ->addColumn('category', function ($product) {
+                return $product->category ? $product->category->name : 'Uncategorized';
+            })
+            ->addColumn('actions', function ($product) {
+                return view('products.partials.actions', compact('product'))->render();
+            })
+            ->editColumn('deleted_at', fn($product) => $product->deleted_at->format('Y-m-d'))
+            ->rawColumns(['photo','actions'])
+            ->make(true);
+        }
 }   

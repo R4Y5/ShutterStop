@@ -82,7 +82,8 @@ function deletePhoto(photoId) {
         .then(response => response.json())
         .then(data => {
             if(data.success) {
-                location.reload();
+                // Remove photo element instantly without reload
+                document.querySelector('[onclick="deletePhoto(' + photoId + ')"]').closest('.position-relative').remove();
             }
         });
     }

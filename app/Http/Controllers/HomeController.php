@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Product;
 
 class HomeController extends Controller
 {
@@ -23,8 +24,14 @@ class HomeController extends Controller
      */
     public function index()
     {
-        if (auth()->user()->hasRole('admin')) { 
-            return view('admin.dashboard'); }
-        return view('home');
+        // If admin - show admin dashboard
+        if (auth()->user()->hasRole('admin')) {
+            return view('admin.dashboard');
+        }
+
+        // If customer - show home page with products
+        $products = Product::paginate(12);
+
+        return view('home', compact('products'));
     }
 }
