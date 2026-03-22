@@ -132,7 +132,7 @@ class UserController extends Controller
                 : '<span class="badge bg-danger">Inactive</span>';
         })
         ->addColumn('actions', function ($user) {
-            return view('users.partials.actions', compact('user'))->render();
+            return view('admin.users.partials.actions', compact('user'))->render();
         })
         ->rawColumns(['photo','status','actions'])
         ->make(true);
