@@ -20,11 +20,15 @@ return new class extends Migration
             $table->integer('stock')->default(0);
             $table->string('photo')->nullable(); // product image
             $table->timestamps();   
+
+            $table->softDeletes();
         });
     }
 
     /**
      * Reverse the migrations.
+     * 
+     * 
      */
     public function down(): void
     {

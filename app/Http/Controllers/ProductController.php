@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Product;
 use App\Models\Category;
+use App\Imports\ProductsImport;
 use Yajra\DataTables\Facades\DataTables;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProductController extends Controller
 {
@@ -39,16 +41,21 @@ class ProductController extends Controller
             'price'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:0',
             'category_id' => 'nullable|exists:categories,id',
-            'photo'       => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'photos.*'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        $data = $request->only(['name','brand','description','price','stock','category_id']);
+        // Create product first
+        $product = Product::create($request->only([
+            'name','brand','description','price','stock','category_id'
+        ]));
 
-        if ($request->hasFile('photo')) {
-            $data['photo'] = $request->file('photo')->store('products', 'public');
+        // Handle multiple photo uploads
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photo) {
+                $path = $photo->store('products', 'public');
+                $product->photos()->create(['path' => $path]);
+            }
         }
-
-        Product::create($data);
 
         return redirect()->route('products.index')->with('success', 'Product added successfully!');
     }
@@ -74,21 +81,19 @@ class ProductController extends Controller
             'price'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:0',
             'category_id' => 'nullable|exists:categories,id',
-            'photo'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'photos.*'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        $data = $request->only(['name','brand','description','price','stock','category_id']);
+        $product->update($request->only([
+            'name','brand','description','price','stock','category_id'
+        ]));
 
-        if ($request->hasFile('photo')) {
-            if ($product->photo && Storage::disk('public')->exists($product->photo)) {
-                Storage::disk('public')->delete($product->photo);
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photo) {
+                $path = $photo->store('products', 'public');
+                $product->photos()->create(['path' => $path]);
             }
-            $data['photo'] = $request->file('photo')->store('products', 'public');
-        } else {
-            $data['photo'] = $product->photo;
         }
-
-        $product->update($data);
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully!');
     }
@@ -124,9 +129,11 @@ class ProductController extends Controller
 
         return DataTables::of($query)
             ->addColumn('photo', function ($product) {
-                return $product->photo
-                    ? '<img src="'.asset('storage/'.$product->photo).'" width="50" class="rounded">'
-                    : '<span class="text-muted">No photo</span>';
+                if ($product->photos->count()) {
+                    $first = $product->photos->first();
+                    return '<img src="'.asset('storage/'.$first->path).'" width="50" class="rounded">';
+                }
+                return '<span class="text-muted">No photo</span>';
             })
             ->addColumn('category', function ($product) {
                 return $product->category ? $product->category->name : 'Uncategorized';
@@ -137,5 +144,60 @@ class ProductController extends Controller
             ->editColumn('created_at', fn($product) => $product->created_at->format('Y-m-d'))
             ->rawColumns(['photo','actions'])
             ->make(true);
+        }
+
+    // For soft deletes
+    public function restore($id)
+    {
+        $product = Product::withTrashed()->findOrFail($id);
+        $product->restore();
+        return redirect()->route('products.index')->with('success', 'Product restored successfully!');
     }
+
+    // For excel
+    public function import(Request $request)
+    {
+        $request->validate(['file' => 'required|mimes:xlsx,xls']);
+        Excel::import(new ProductsImport, $request->file('file'));
+        return redirect()->route('products.index')->with('success', 'Products imported successfully!');
+    }
+
+    public function show(Product $product)
+    {
+        return view('products.show', compact('product'));
+    }
+
+    public function deletePhoto($id)
+    {
+        $photo = \App\Models\ProductPhoto::findOrFail($id);
+
+        // Delete file from storage
+        if (Storage::disk('public')->exists($photo->path)) {
+            Storage::disk('public')->delete($photo->path);
+        }
+
+            $photo->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function getTrashedData(Request $request)
+{
+    $query = Product::onlyTrashed()->with('category','photos')->select('products.*');
+
+    return DataTables::of($query)
+        ->addColumn('photo', function ($product) {
+            if ($product->photos->count()) {
+                $first = $product->photos->first();
+                return '<img src="'.asset('storage/'.$first->path).'" width="50" class="rounded">';
+            }
+            return '<span class="text-muted">No photo</span>';
+        })
+        ->addColumn('category', fn($product) => $product->category ? $product->category->name : 'Uncategorized')
+        ->addColumn('actions', fn($product) => view('products.partials.actions', compact('product'))->render())
+        ->editColumn('deleted_at', fn($product) => $product->deleted_at->format('Y-m-d'))
+        ->rawColumns(['photo','actions'])
+        ->make(true);
 }
+
+}   

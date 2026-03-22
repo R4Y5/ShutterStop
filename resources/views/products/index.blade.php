@@ -13,6 +13,15 @@
         <a href="/admin" class="btn btn-outline-secondary">Back to Admin Dashboard</a>
     </div>
 
+    {{-- Excel Import Form --}}
+<form action="{{ route('products.import') }}" method="POST" enctype="multipart/form-data" class="mb-3">
+    @csrf
+    <div class="input-group" style="max-width:400px;">
+        <input type="file" name="file" class="form-control" required>
+        <button class="btn btn-success" type="submit">Import Excel</button>
+    </div>
+</form>
+
     <div>
         <label for="categoryFilter" class="me-2">Filter by Category:</label>
         <select id="categoryFilter" class="form-select d-inline-block" style="width:200px;">
@@ -51,6 +60,26 @@
             </tr>
         </thead>
     </table>
+
+    <hr class="my-4">
+
+<h2>Trash</h2>
+<table id="trashed-products-table" class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Photo</th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Brand</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Deleted At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+</table>
 </div>
 @endsection
 
@@ -82,6 +111,31 @@ let table = $('#products-table').DataTable({
     order: [[2, 'asc']],
     responsive: true
 });
+
+// Trashed products table
+let trashedTable = $('#trashed-products-table').DataTable({
+    processing: true,
+    serverSide: true,
+    ajax: {
+        url: '{{ route('products.trashed.data') }}'
+    },
+    columns: [
+        { data: 'photo', name: 'photo', orderable: false, searchable: false },
+        { data: 'id', name: 'id' },
+        { data: 'name', name: 'name' },
+        { data: 'brand', name: 'brand' },
+        { data: 'category', name: 'category' },
+        { data: 'description', name: 'description' },
+        { data: 'price', name: 'price' },
+        { data: 'stock', name: 'stock' },
+        { data: 'deleted_at', name: 'deleted_at' },
+        { data: 'actions', name: 'actions', orderable: false, searchable: false }
+    ],
+    pageLength: 10,
+    order: [[2, 'asc']],
+    responsive: true
+});
+
 
 // Reload table when category filter changes
 $('#categoryFilter, #brandFilter').change(function() {

@@ -1,12 +1,16 @@
-<a href="{{ route('products.edit', $product) }}" class="btn btn-warning btn-sm">
-    <i class="bi bi-pencil-square"></i> Edit
-</a>
+{{-- resources/views/products/partials/actions.blade.php --}}
+@if(!$product->deleted_at)
+    {{-- Normal actions for active products --}}
+    <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-primary">Edit</a>
 
-<form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline;">
-    @csrf
-    @method('DELETE')
-    <button type="submit" class="btn btn-danger btn-sm"
-        onclick="return confirm('Are you sure you want to delete this product?')">
-        <i class="bi bi-trash"></i> Delete
-    </button>
-</form>
+    <form action="{{ route('products.destroy', $product->id) }}" method="POST" style="display:inline;">
+        @csrf @method('DELETE')
+        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+    </form>
+@else
+    {{-- Restore button for soft-deleted products --}}
+    <form action="{{ route('products.restore', $product->id) }}" method="POST" style="display:inline;">
+        @csrf
+        <button type="submit" class="btn btn-sm btn-warning">Restore</button>
+    </form>
+@endif
