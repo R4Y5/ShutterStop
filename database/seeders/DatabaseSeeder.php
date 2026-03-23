@@ -2,24 +2,23 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
+        // Create roles safely (no duplicates)
+        Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+
+        // Call other seeders
         $this->call(CategorySeeder::class);
         $this->call(ProductSeeder::class);
-        $this->call(RoleSeeder::class);
         $this->call(UserSeeder::class);
-        
-   
     }
 }

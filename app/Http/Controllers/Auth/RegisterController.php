@@ -57,11 +57,13 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name'  => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'contact_no' => ['required', 'string', 'max:20'],
+            'address'    => ['required', 'string', 'max:255'],
             'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif'],
-            'phone' => ['nullable', 'string', 'max:20'], // optional
             'terms' => ['accepted'], // tems and conditions checkbox
         ]);
     }
@@ -81,11 +83,13 @@ class RegisterController extends Controller
         }
         
         $user = User::create([
-            'name' => $data['name'],
+            'first_name' => $data['first_name'],
+            'last_name'  => $data['last_name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password'   => bcrypt($data['password']),
             'photo' => $photoPath,
-            'phone'=> $data['phone'] ?? null,
+            'contact_no' => $data['contact_no'],
+            'address'    => $data['address'],
         ]);
 
         //automatically assign "customer" role to a new user

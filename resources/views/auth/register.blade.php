@@ -11,17 +11,30 @@
                     <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
                         @csrf
 
-                        <!-- Name -->
-                        <div class="row mb-3">
-                            <label for="name" class="col-md-4 col-form-label text-md-end">{{ __('Name') }}</label>
-                            <div class="col-md-6">
-                                <input id="name" type="text" class="form-control @error('name') is-invalid @enderror"
-                                    name="name" value="{{ old('name') }}" required autocomplete="name" autofocus>
-                                @error('name')
-                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                                @enderror
-                            </div>
-                        </div>
+                        <!-- First Name -->
+<div class="row mb-3">
+    <label for="first_name" class="col-md-4 col-form-label text-md-end">{{ __('First Name') }}</label>
+    <div class="col-md-6">
+        <input id="first_name" type="text" class="form-control @error('first_name') is-invalid @enderror"
+            name="first_name" value="{{ old('first_name') }}" required autocomplete="given-name" autofocus>
+        @error('first_name')
+            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+        @enderror
+    </div>
+</div>
+
+<!-- Last Name -->
+<div class="row mb-3">
+    <label for="last_name" class="col-md-4 col-form-label text-md-end">{{ __('Last Name') }}</label>
+    <div class="col-md-6">
+        <input id="last_name" type="text" class="form-control @error('last_name') is-invalid @enderror"
+            name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name">
+        @error('last_name')
+            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+        @enderror
+    </div>
+</div>
+
 
                         <!-- Email -->
                         <div class="row mb-3">
@@ -34,14 +47,25 @@
                                 @enderror
                             </div>
                         </div>
-
-                        <!-- Phone Number (optional) -->
+                        <!-- Contact Number -->
                         <div class="row mb-3">
-                            <label for="phone" class="col-md-4 col-form-label text-md-end">{{ __('Phone Number') }}</label>
+                            <label for="contact_no" class="col-md-4 col-form-label text-md-end">{{ __('Contact Number') }}</label>
                             <div class="col-md-6">
-                                <input id="phone" type="text" class="form-control @error('phone') is-invalid @enderror"
-                                    name="phone" value="{{ old('phone') }}" autocomplete="tel">
-                                @error('phone')
+                                <input id="contact_no" type="text" class="form-control @error('contact_no') is-invalid @enderror"
+                                    name="contact_no" value="{{ old('contact_no') }}" required autocomplete="tel">
+                                @error('contact_no')
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="row mb-3">
+                            <label for="address" class="col-md-4 col-form-label text-md-end">{{ __('Address') }}</label>
+                            <div class="col-md-6">
+                                <input id="address" type="text" class="form-control @error('address') is-invalid @enderror"
+                                    name="address" value="{{ old('address') }}" required autocomplete="street-address">
+                                @error('address')
                                     <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                 @enderror
                             </div>
@@ -67,6 +91,7 @@
                                     name="password_confirmation" required autocomplete="new-password">
                             </div>
                         </div>
+
 
                         <!-- Profile Photo -->
                         <div class="row mb-3">
