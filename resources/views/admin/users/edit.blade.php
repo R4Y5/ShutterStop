@@ -20,9 +20,20 @@
             <input type="email" name="email" value="{{ $user->email }}" class="form-control" readonly>
         </div>
 
-        <div class="mb-3">
-            <label>Name</label>
-            <input type="text" name="name" value="{{ $user->name }}" class="form-control" required>
+        <!-- First Name -->
+        <div class="form-group">
+            <label for="first_name">First Name</label>
+            <input type="text" name="first_name" id="first_name"
+                value="{{ old('first_name', $user->first_name) }}"
+                class="form-control">
+        </div>
+
+        <!-- Last Name -->
+        <div class="form-group">
+            <label for="last_name">Last Name</label>
+            <input type="text" name="last_name" id="last_name"
+                value="{{ old('last_name', $user->last_name) }}"
+                class="form-control">
         </div>
 
         <div class="mb-3">
