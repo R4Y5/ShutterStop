@@ -13,7 +13,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::all();
-        return view('categories.index', compact('categories'));
+        return view('admin.categories.index', compact('categories'));
     }
 
     /**
@@ -21,7 +21,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return view('categories.create');
+        return view('admin.categories.create');
     }
 
     /**
@@ -35,15 +35,8 @@ class CategoryController extends Controller
 
         Category::create($request->only('name'));
 
-        return redirect()->route('categories.index')->with('success', 'Categories added successfully!');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        return redirect()->route('admin.categories.index')
+                         ->with('success', 'Category added successfully!');
     }
 
     /**
@@ -51,21 +44,23 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
+        // Just return the edit view with the category
+        return view('admin.categories.edit', compact('category'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Category $category)
+    {
         $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
         ]);
 
         $category->update($request->only('name'));
 
-        return redirect()->route('categories.index')->with('success', 'Category updated successfully!');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
+        return redirect()->route('admin.categories.index')
+                         ->with('success', 'Category updated successfully!');
     }
 
     /**
@@ -74,6 +69,7 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         $category->delete();
-        return redirect()->route('categories.index')->with('success', 'Category deleted successfully!');
+        return redirect()->route('admin.categories.index')
+                         ->with('success', 'Category deleted successfully!');
     }
 }

@@ -14,7 +14,7 @@
 <div class="container">
     <h1>Add New Product</h1>
 
-    <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="mb-3">
@@ -24,7 +24,12 @@
 
         <div class="mb-3">
             <label>Brand</label>
-            <input type="text" name="brand" value="{{ old('brand') }}" class="form-control">
+            <select name="brand" class="form-select" required>
+                <option value="">-- Select Brand --</option>
+                <option value="Sony"  {{ old('brand', $product->brand ?? '') == 'Sony' ? 'selected' : '' }}>Sony</option>
+                <option value="Canon" {{ old('brand', $product->brand ?? '') == 'Canon' ? 'selected' : '' }}>Canon</option>
+                <option value="Nikon" {{ old('brand', $product->brand ?? '') == 'Nikon' ? 'selected' : '' }}>Nikon</option>
+            </select>
         </div>
 
         <div class="mb-3">
@@ -60,7 +65,7 @@
         </div>
 
         <button type="submit" class="btn btn-success">Save Product</button>
-        <a href="{{ route('products.index') }}" class="btn btn-secondary">Cancel</a>
+        <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 @endsection

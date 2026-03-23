@@ -6,69 +6,51 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Product;
 use App\Models\Category;
-use App\Http\Imports\ProductsImport;
+use App\Models\ProductPhoto;
+use App\Imports\ProductsImport;
 use Yajra\DataTables\Facades\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
-{
-    $query = Product::query();
+    {
+        $query = Product::query();
 
-    // Filter by price range
-    if ($request->filled('min_price')) {
-        $query->where('price', '>=', $request->min_price);
-    }
-    if ($request->filled('max_price')) {
-        $query->where('price', '<=', $request->max_price);
-    }
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+        if ($request->filled('brand')) {
+            $query->where('brand_id', $request->brand);
+        }
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
 
-    // Filter by category
-    if ($request->filled('category')) {
-        $query->where('category_id', $request->category);
-    }
-
-    // Filter by brand
-    if ($request->filled('brand')) {
-        $query->where('brand_id', $request->brand);
-    }
-
-    // Filter by type
-    if ($request->filled('type')) {
-        $query->where('type', $request->type);
-    }
-
-    // Search keyword
-    if ($request->filled('search')) {
-        $query->where('name', 'like', '%' . $request->search . '%');
+        $products = $query->paginate(12);
+        return view('products.index', compact('products'));
     }
 
-    $products = $query->paginate(12);
-
-    return view('products.index', compact('products'));
-}
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $categories = Category::all();
         return view('products.create', compact('categories'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
             'name'        => 'required|string|max:255',
-            'brand'       => 'nullable|string|max:255',
+            'brand'       => 'nullable|string|in:Sony,Canon,Nikon',
             'description' => 'nullable|string',
             'price'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:0',
@@ -76,48 +58,38 @@ class ProductController extends Controller
             'photos.*'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        // Create product first
         $product = Product::create($request->only([
             'name','brand','description','price','stock','category_id'
         ]));
 
-        // Handle multiple photo uploads
         if ($request->hasFile('photos')) {
-    foreach ($request->file('photos') as $index => $photo) {
-        $filename = time() . '-' . $photo->getClientOriginalName();
-        $path = $photo->storeAs('products', $filename, 'public');
+            foreach ($request->file('photos') as $index => $photo) {
+                $filename = time() . '-' . $photo->getClientOriginalName();
+                $path = $photo->storeAs('products', $filename, 'public');
 
-        // Save first photo as the main product photo
-        if ($index === 0) {
-            $product->photo = $path;
-            $product->save();
+                if ($index === 0) {
+                    $product->photo = $path;
+                    $product->save();
+                }
+
+                $product->photos()->create(['path' => $path]);
+            }
         }
 
-        // Save all photos into product_photos table
-        $product->photos()->create(['path' => $path]);
-    }
-}
-
-        return redirect()->route('products.index')->with('success', 'Product added successfully!');
+        return redirect()->route('admin.products.index')->with('success', 'Product added successfully!');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Product $product)
     {
         $categories = Category::all();
         return view('products.edit', compact('product','categories'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Product $product)
     {
         $request->validate([
             'name'        => 'required|string|max:255',
-            'brand'       => 'nullable|string|max:255',
+            'brand'       => 'nullable|string|in:Sony,Canon,Nikon',
             'description' => 'nullable|string',
             'price'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:0',
@@ -130,41 +102,65 @@ class ProductController extends Controller
         ]));
 
         if ($request->hasFile('photos')) {
-    foreach ($request->file('photos') as $index => $photo) {
-        $filename = time() . '-' . $photo->getClientOriginalName();
-        $path = $photo->storeAs('products', $filename, 'public');
+            foreach ($request->file('photos') as $index => $photo) {
+                $filename = time() . '-' . $photo->getClientOriginalName();
+                $path = $photo->storeAs('products', $filename, 'public');
 
-        // Save first photo as the main product photo
-        if ($index === 0) {
-            $product->photo = $path;
-            $product->save();
+                if ($index === 0) {
+                    $product->photo = $path;
+                    $product->save();
+                }
+
+                $product->photos()->create(['path' => $path]);
+            }
         }
 
-        // Save all photos into product_photos table
-        $product->photos()->create(['path' => $path]);
-    }
-}
-
-        return redirect()->route('products.index')->with('success', 'Product updated successfully!');
+        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully!');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Soft delete product (keep images).
      */
     public function destroy(Product $product)
     {
-        if ($product->photo && Storage::disk('public')->exists($product->photo)) {
-            Storage::disk('public')->delete($product->photo);
-        }
+        $product->delete(); // only soft delete, keep images
+        return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully!');
+    }
 
-        $product->delete();
-
-        return redirect()->route('products.index')->with('success', 'Product deleted successfully!');
+    public function restore($id)
+    {
+        $product = Product::withTrashed()->findOrFail($id);
+        $product->restore();
+        return redirect()->route('admin.products.index')->with('success', 'Product restored successfully!');
     }
 
     /**
-     * Products DataTable
+     * Permanently delete product and its images.
      */
+    public function forceDestroy($id)
+    {
+        $product = Product::withTrashed()->findOrFail($id);
+
+        if ($product->photo) {
+            $path = str_replace('storage/', '', $product->photo);
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+
+        foreach ($product->photos as $photo) {
+            $path = str_replace('storage/', '', $photo->path);
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+            $photo->delete();
+        }
+
+        $product->forceDelete();
+
+        return redirect()->route('admin.products.index')->with('success', 'Product permanently deleted!');
+    }
+
     public function getData(Request $request)
     {
         $query = Product::with('category')->select('products.*');
@@ -172,7 +168,6 @@ class ProductController extends Controller
         if ($request->category_id) {
             $query->where('category_id', $request->category_id);
         }
-
         if ($request->brand) {
             $query->where('brand', $request->brand);
         }
@@ -185,31 +180,18 @@ class ProductController extends Controller
                 }
                 return '<span class="text-muted">No photo</span>';
             })
-            ->addColumn('category', function ($product) {
-                return $product->category ? $product->category->name : 'Uncategorized';
-            })
-            ->addColumn('actions', function ($product) {
-                return view('products.partials.actions', compact('product'))->render();
-            })
+            ->addColumn('category', fn($product) => $product->category ? $product->category->name : 'Uncategorized')
+            ->addColumn('actions', fn($product) => view('products.partials.actions', compact('product'))->render())
             ->editColumn('created_at', fn($product) => $product->created_at->format('Y-m-d'))
             ->rawColumns(['photo','actions'])
             ->make(true);
-        }
-
-    // For soft deletes
-    public function restore($id)
-    {
-        $product = Product::withTrashed()->findOrFail($id);
-        $product->restore();
-        return redirect()->route('products.index')->with('success', 'Product restored successfully!');
     }
 
-    // For excel
     public function import(Request $request)
     {
         $request->validate(['file' => 'required|mimes:xlsx,xls']);
         Excel::import(new ProductsImport, $request->file('file'));
-        return redirect()->route('products.index')->with('success', 'Products imported successfully!');
+        return redirect()->route('admin.products.index')->with('success', 'Products imported successfully!');
     }
 
     public function show(Product $product)
@@ -219,14 +201,14 @@ class ProductController extends Controller
 
     public function deletePhoto($id)
     {
-        $photo = \App\Models\ProductPhoto::findOrFail($id);
+        $photo = ProductPhoto::findOrFail($id);
 
-        // Delete file from storage
-        if (Storage::disk('public')->exists($photo->path)) {
-            Storage::disk('public')->delete($photo->path);
+        $path = str_replace('storage/', '', $photo->path);
+        if (Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
         }
 
-            $photo->delete();
+        $photo->delete();
 
         return response()->json(['success' => true]);
     }
@@ -238,7 +220,6 @@ class ProductController extends Controller
         if ($request->category_id) {
             $query->where('category_id', $request->category_id);
         }
-
         if ($request->brand) {
             $query->where('brand', $request->brand);
         }
@@ -251,14 +232,10 @@ class ProductController extends Controller
                 }
                 return '<span class="text-muted">No photo</span>';
             })
-            ->addColumn('category', function ($product) {
-                return $product->category ? $product->category->name : 'Uncategorized';
-            })
-            ->addColumn('actions', function ($product) {
-                return view('products.partials.actions', compact('product'))->render();
-            })
+            ->addColumn('category', fn($product) => $product->category ? $product->category->name : 'Uncategorized')
+            ->addColumn('actions', fn($product) => view('products.partials.actions', compact('product'))->render())
             ->editColumn('deleted_at', fn($product) => $product->deleted_at->format('Y-m-d'))
             ->rawColumns(['photo','actions'])
             ->make(true);
-        }
-}   
+    }
+}

@@ -45,15 +45,75 @@
     <!-- Reviews Section -->
     <div class="mt-5">
         <h4>Customer Reviews</h4>
+
+        {{-- Review Form (only if user purchased & completed order) --}}
+        @if(auth()->check())
+            @php
+                $hasCompletedOrder = \App\Models\Order::where('user_id', auth()->id())
+                    ->where('status','completed')
+                    ->whereHas('items', fn($q) => $q->where('product_id',$product->id))
+                    ->exists();
+
+                $existingReview = $product->reviews()->where('user_id', auth()->id())->first();
+            @endphp
+
+            @if($hasCompletedOrder)
+                <form action="{{ route('products.review', $product->id) }}" method="POST" class="mb-4">
+                    @csrf
+                    <div class="mb-3">
+                        <label>Rating</label>
+                        <select name="rating" class="form-select" required>
+                            @for($i=1;$i<=5;$i++)
+                                <option value="{{ $i }}" {{ $existingReview && $existingReview->rating == $i ? 'selected' : '' }}>
+                                    {{ $i }}
+                                </option>
+                            @endfor
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Comment</label>
+                        <textarea name="comment" class="form-control">{{ $existingReview->comment ?? '' }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        {{ $existingReview ? 'Update Review' : 'Submit Review' }}
+                    </button>
+                </form>
+            @else
+                <p class="text-muted">You can only review this product after completing an order.</p>
+            @endif
+        @endif
+
+        {{-- List all reviews --}}
         @forelse($product->reviews as $review)
-            <div class="border p-3 mb-2">
-                <strong>{{ $review->user->name }}</strong>
-                <span class="text-muted">rated {{ $review->rating }}/5</span>
-                <p>{{ $review->comment }}</p>
-            </div>
-        @empty
-            <p class="text-muted">No reviews yet.</p>
-        @endforelse
+    <div class="border p-3 mb-3">
+        {{-- Debug output --}}
+        <pre>{{ print_r($review->user, true) }}</pre>
+
+        <strong>
+            @if(isset($review->user->first_name) && isset($review->user->last_name))
+                {{ $review->user->first_name }} {{ $review->user->last_name }}
+            @else
+                {{ $review->user->name }}
+            @endif
+        </strong>
+        <span class="text-muted">on {{ $review->created_at->format('M d, Y') }}</span>
+
+        <div class="mt-1">
+            @for($i = 1; $i <= 5; $i++)
+                @if($i <= $review->rating)
+                    <span class="text-warning">&#9733;</span>
+                @else
+                    <span class="text-secondary">&#9734;</span>
+                @endif
+            @endfor
+        </div>
+
+        <p class="mt-2">{{ $review->comment }}</p>
+    </div>
+@empty
+    <p class="text-muted">No reviews yet.</p>
+@endforelse
+
     </div>
 </div>
 

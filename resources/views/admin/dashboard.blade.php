@@ -9,12 +9,12 @@
     <div class="grid grid-cols-3 gap-6">
         <div class="bg-white shadow p-4 rounded">
             <h2 class="text-xl font-semibold mb-2">Manage Products</h2>
-            <a href="{{ url('/products') }}" class="btn btn-primary">Go to Products</a>
+            <a href="{{ url('admin/products') }}" class="btn btn-primary">Go to Products</a>
         </div>
 
         <div class="bg-white shadow p-4 rounded">
             <h2 class="text-xl font-semibold mb-2">Manage Categories</h2>
-            <a href="{{ route('categories.index') }}" class="btn btn-primary">Go to Categories</a>
+            <a href="{{ route('admin.categories.index') }}" class="btn btn-primary">Go to Categories</a>
         </div>
     
         <div class="bg-white shadow p-4 rounded">

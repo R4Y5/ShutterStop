@@ -4,9 +4,10 @@
 <div class="container">
     <h1>Edit Product</h1>
 
-    <form action="{{ route('products.update', $product) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('admin.products.update', $product) }}" method="POST" enctype="multipart/form-data">
         @csrf @method('PUT')
 
+        <!-- Product fields -->
         <div class="mb-3">
             <label>Name</label>
             <input type="text" name="name" value="{{ $product->name }}" class="form-control" required>
@@ -14,7 +15,12 @@
 
         <div class="mb-3">
             <label>Brand</label>
-            <input type="text" name="brand" value="{{ old('brand', $product->brand ?? '') }}" class="form-control" required>
+            <select name="brand" class="form-select" required>
+                <option value="">-- Select Brand --</option>
+                <option value="Sony"  {{ old('brand', $product->brand ?? '') == 'Sony' ? 'selected' : '' }}>Sony</option>
+                <option value="Canon" {{ old('brand', $product->brand ?? '') == 'Canon' ? 'selected' : '' }}>Canon</option>
+                <option value="Nikon" {{ old('brand', $product->brand ?? '') == 'Nikon' ? 'selected' : '' }}>Nikon</option>
+            </select>
         </div>
 
         <div class="mb-3">
@@ -45,12 +51,13 @@
             <input type="number" name="stock" value="{{ $product->stock }}" class="form-control" required>
         </div>
 
+        <!-- Photos -->
         <div class="mb-3">
             <label>Additional Photos</label>
             @if($product->photos->count())
                 <div class="d-flex flex-wrap">
                     @foreach($product->photos as $photo)
-                        <div class="position-relative m-2">
+                        <div class="position-relative m-2 photo-item" data-id="{{ $photo->id }}">
                             <img src="{{ asset('storage/' . $photo->path) }}" width="80" class="rounded">
                             <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
                                 onclick="deletePhoto({{ $photo->id }})">X</button>
@@ -65,7 +72,7 @@
         </div>
 
         <button type="submit" class="btn btn-success">Update Product</button>
-        <a href="{{ route('products.index') }}" class="btn btn-secondary">Cancel</a>
+        <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 
@@ -73,19 +80,22 @@
 <script>
 function deletePhoto(photoId) {
     if(confirm('Delete this photo?')) {
-        fetch("{{ url('/products/photos') }}/" + photoId, {
+        fetch("{{ url('/admin/products/photos') }}/" + photoId, {
             method: 'DELETE',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
             }
         })
         .then(response => response.json())
         .then(data => {
             if(data.success) {
-                // Remove photo element instantly without reload
-                document.querySelector('[onclick="deletePhoto(' + photoId + ')"]').closest('.position-relative').remove();
+                document.querySelector('.photo-item[data-id="' + photoId + '"]').remove();
+            } else {
+                alert('Failed to delete photo.');
             }
-        });
+        })
+        .catch(() => alert('Error deleting photo.'));
     }
 }
 </script>

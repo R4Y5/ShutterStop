@@ -37,16 +37,34 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
     })->name('admin.dashboard');
 
     // Products management
-    Route::resource('products', ProductController::class)->except(['show']);
-    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-    Route::get('/products/data', [ProductController::class, 'getData'])->name('products.data');
-    Route::get('/products/trashed/data', [ProductController::class, 'getTrashedData'])->name('products.trashed.data');
-    Route::post('/products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
-    Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
-    Route::delete('/products/photos/{id}', [ProductController::class, 'deletePhoto'])->name('products.photos.delete');
+    Route::resource('products', ProductController::class)
+        ->except(['show'])
+        ->names([
+            'index'   => 'admin.products.index',
+            'create'  => 'admin.products.create',
+            'store'   => 'admin.products.store',
+            'edit'    => 'admin.products.edit',
+            'update'  => 'admin.products.update',
+            'destroy' => 'admin.products.destroy',
+        ]);
+
+    Route::get('/products/data', [ProductController::class, 'getData'])->name('admin.products.data');
+    Route::get('/products/trashed/data', [ProductController::class, 'getTrashedData'])->name('admin.products.trashed.data');
+    Route::post('/products/{id}/restore', [ProductController::class, 'restore'])->name('admin.products.restore');
+    Route::post('/products/import', [ProductController::class, 'import'])->name('admin.products.import');
+    Route::delete('/products/photos/{id}', [ProductController::class, 'deletePhoto'])->name('admin.products.photos.delete');
+    Route::delete('/products/{id}/force', [ProductController::class, 'forceDestroy'])->name('admin.products.forceDestroy');
 
     // Categories management
-    Route::resource('categories', CategoryController::class);
+    Route::resource('categories', CategoryController::class)->names([
+        'index'   => 'admin.categories.index',
+        'create'  => 'admin.categories.create',
+        'store'   => 'admin.categories.store',
+        'show'    => 'admin.categories.show',
+        'edit'    => 'admin.categories.edit',
+        'update'  => 'admin.categories.update',
+        'destroy' => 'admin.categories.destroy',
+    ]);
 
     // Users management
     Route::get('/users/data', [UserController::class, 'getData'])->name('admin.users.data');
@@ -64,7 +82,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
     Route::get('/orders/{order}/edit', [AdminOrderController::class, 'edit'])->name('admin.orders.edit');
     Route::put('/orders/{order}', [AdminOrderController::class, 'update'])->name('admin.orders.update');
     Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])->name('admin.orders.destroy');
-
 });
 
 // --------------------
@@ -95,6 +112,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Checkout
     Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
 
-    // Reviews
-    Route::post('/products/{product}/review', [ReviewController::class, 'store'])->name('products.review');
+    // Customer review form + submission
+    Route::get('/products/{product}/review', [ReviewController::class, 'form'])
+    ->name('products.review.form')
+    ->middleware('auth');
+
+    Route::post('/products/{product}/review', [ReviewController::class, 'store'])
+    ->name('products.review')
+    ->middleware('auth');
+
+    // Admin review listing
+    Route::middleware(['auth','verified','role:admin'])->prefix('admin')->group(function () {
+        Route::get('/reviews/data', [ReviewController::class, 'getData'])->name('admin.reviews.data');
+    });
+
+    // My Reviews page
+    Route::get('/account/reviews', [ReviewController::class, 'myReviews'])
+    ->name('account.reviews')
+    ->middleware('auth');
 });

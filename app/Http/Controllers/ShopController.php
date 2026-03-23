@@ -53,6 +53,7 @@ class ShopController extends Controller
      */
     public function show(Product $product)
     {
+        $product->load(['reviews.user']);
         return view('shop.show', compact('product'));
     }
 
