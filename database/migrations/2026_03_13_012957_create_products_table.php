@@ -13,11 +13,9 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('name');              // e.g. Canon EOS R5
-            $table->string('brand');             // e.g. Canon, Nikon, Sony
+            $table->string('name');            // e.g. Canon, Nikon, Sony
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
-            $table->integer('stock')->default(0);
             $table->string('photo')->nullable(); // product image
             $table->timestamps();   
 
