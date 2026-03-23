@@ -12,12 +12,12 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $status = $request->get('status');
+        $status = $request->get('is_active');
         
         $users = User::query();
 
         if ($status && in_array($status, ['Active', 'Inactive'])) {
-            $users->where('status', $status);
+            $users->where('is_active', $status);
         }
 
         $users = $users->orderBy('created_at', 'desc')->get();
@@ -94,10 +94,12 @@ class UserController extends Controller
 
     public function toggleStatus(User $user)
     {
-        $user->status = $user->status === 'Active' ? 'Inactive' : 'Active';
+        $user->is_active = !$user->is_active;
         $user->save();
-        return redirect()->route('admin.users.index')->with('success', 'User status updated successfully!');
+
+        return back()->with('success', 'User status updated successfully.');
     }
+
 
     public function updateRole(Request $request, User $user)
     {
@@ -122,15 +124,15 @@ class UserController extends Controller
             ->addColumn('role', function ($user) {
                 return $user->roles->pluck('name')->implode(', ') ?: 'None';
             })
-            ->addColumn('status', function ($user) {
-                return $user->status === 'Active'
-                    ? '<span class="badge bg-success">Active</span>'
-                    : '<span class="badge bg-danger">Inactive</span>';
-            })
+            ->addColumn('is_active', function ($user) {
+            return $user->is_active
+                ? '<span class="badge bg-success">Active</span>'
+                : '<span class="badge bg-danger">Inactive</span>';
+})
             ->addColumn('actions', function ($user) {
                 return view('admin.users.partials.actions', compact('user'))->render();
             })
-            ->rawColumns(['photo','status','actions'])
+            ->rawColumns(['photo','is_active','actions'])
             ->make(true);
     }
 }

@@ -4,44 +4,46 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
     use AuthenticatesUsers;
 
     /**
+     * Handle post-login checks.
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        // Prevent login if account is deactivated
+        if (!$user->is_active) {
+            Auth::logout();
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Your account has been deactivated.']);
+        }
+    }
+
+    /**
      * Where to redirect users after login.
-     *
-     * @var string
      */
     protected function redirectTo()
-{
-    if (auth()->user()->role === 'admin') {
-        return route('admin.dashboard');   // adjust to your admin route
-    }
+    {
+        $role = auth()->user()->role;
 
-    if (auth()->user()->role === 'customer') {
-        return route('shop.index'); // adjust to your customer route
-    }
+        if ($role === 'admin') {
+            return route('admin.dashboard');   // Admin dashboard
+        }
 
-    return '/home'; // fallback
-}
+        if ($role === 'customer') {
+            return route('shop.index');        // Customer shop page
+        }
+
+        return '/home'; // Fallback
+    }
 
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {

@@ -81,9 +81,11 @@
                                         Change Password
                                     </a>
 
-                                    <a class="dropdown-item" href="{{ route('account.orders') }}">
-                                        My Orders
-                                    </a>
+                                    @if(Auth::user()->hasRole('customer'))
+                                        <a class="dropdown-item" href="{{ route('account.orders') }}">
+                                            My Orders
+                                        </a>
+                                    @endif
 
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();

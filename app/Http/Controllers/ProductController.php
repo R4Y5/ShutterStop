@@ -15,10 +15,42 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        return view('products.index');
+    public function index(Request $request)
+{
+    $query = Product::query();
+
+    // Filter by price range
+    if ($request->filled('min_price')) {
+        $query->where('price', '>=', $request->min_price);
     }
+    if ($request->filled('max_price')) {
+        $query->where('price', '<=', $request->max_price);
+    }
+
+    // Filter by category
+    if ($request->filled('category')) {
+        $query->where('category_id', $request->category);
+    }
+
+    // Filter by brand
+    if ($request->filled('brand')) {
+        $query->where('brand_id', $request->brand);
+    }
+
+    // Filter by type
+    if ($request->filled('type')) {
+        $query->where('type', $request->type);
+    }
+
+    // Search keyword
+    if ($request->filled('search')) {
+        $query->where('name', 'like', '%' . $request->search . '%');
+    }
+
+    $products = $query->paginate(12);
+
+    return view('products.index', compact('products'));
+}
 
     /**
      * Show the form for creating a new resource.

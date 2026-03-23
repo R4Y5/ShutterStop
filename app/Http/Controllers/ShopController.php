@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Brand;
 
 class ShopController extends Controller
 {
@@ -12,26 +13,40 @@ class ShopController extends Controller
      * Show all products in the shop.
      */
     public function index(Request $request)
-    {
-        $categories = Category::all();
+{
+    $query = Product::query();
 
-        $query = Product::with('category'); // eager load category
-
-        // Optionally filter products by search/category
-        $query = Product::query();
-
-        if ($request->filled('search')) {
-            $query->where('name', 'like', '%'.$request->search.'%');
-        }
-
-        if ($request->filled('category')) {
-            $query->where('category_id', $request->category);
-        }
-        // Fetch all products (no status filter since your table doesn’t have that column)
-        $products = Product::paginate(12);
-
-        return view('shop.index', compact('products', 'categories'));
+    // apply filters (search, min_price, max_price, category, brand, type)
+    if ($request->filled('search')) {
+        $query->where('name', 'like', '%' . $request->search . '%');
     }
+    if ($request->filled('min_price')) {
+        $query->where('price', '>=', $request->min_price);
+    }
+    if ($request->filled('max_price')) {
+        $query->where('price', '<=', $request->max_price);
+    }
+    if ($request->filled('category')) {
+        $query->where('category_id', $request->category);
+    }
+    if ($request->filled('brand')) {
+        $query->where('brand_id', $request->brand);
+    }
+    if ($request->filled('type')) {
+        $query->where('type', $request->type);
+    }
+
+    $products = $query->paginate(12);
+    $categories = Category::all();
+    $brands = Brand::all();
+
+    if ($request->ajax()) {
+        return view('shop.partials.products', compact('products'))->render();
+    }
+
+    return view('shop.index', compact('products', 'categories', 'brands'));
+}
+
 
     /**
      * Show a single product detail page.

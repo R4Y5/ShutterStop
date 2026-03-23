@@ -37,6 +37,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
 
     // Products management
     Route::resource('products', ProductController::class)->except(['show']);
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::get('/products/data', [ProductController::class, 'getData'])->name('products.data');
     Route::get('/products/trashed/data', [ProductController::class, 'getTrashedData'])->name('products.trashed.data');
     Route::post('/products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
@@ -54,13 +55,15 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/admin/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
     Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
     Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
-    Route::patch('/admin/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('admin.users.toggleStatus');
+    Route::patch('/admin/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
+    ->name('admin.users.toggle-status');
+
 });
 
 // ===============================
 // Customer Routes (auth + verified + role:customer)
 // ===============================
-Route::middleware(['auth', 'verified', 'role:customer'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     // Shop
     Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
     Route::get('/products/{product}', [ShopController::class, 'show'])->name('products.show');
@@ -89,3 +92,11 @@ Route::middleware(['auth', 'verified', 'role:customer'])->group(function () {
     // Reviews
     Route::post('/products/{product}/review', [ReviewController::class, 'store'])->name('products.review');
 });
+
+Route::prefix('admin')->middleware(['auth', 'is_admin'])->group(function () {
+    Route::get('/orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])
+        ->name('admin.orders.index');
+    Route::get('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])
+        ->name('admin.orders.show');
+});
+

@@ -27,7 +27,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'photo',
         'contact_no',
         'address',
-        'status',
+        'is_active',
     ];
 
     /**
@@ -56,5 +56,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getFormattedRolesAttribute()
     {
         return $this->getRoleNames()->map(fn($role) => ucfirst($role));
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(\App\Models\Order::class);
     }
 }

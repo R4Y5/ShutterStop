@@ -21,6 +21,12 @@ return new class extends Migration
 
             $table->softDeletes();
         });
+
+        Schema::create('brands', function (Blueprint $table) {
+        $table->id();
+        $table->string('name');
+        $table->timestamps();
+});
     }
 
     /**

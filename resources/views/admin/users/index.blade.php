@@ -45,7 +45,7 @@ $(function() {
         { data: 'last_name', name: 'last_name' },
         { data: 'email', name: 'email' },
         { data: 'role', name: 'role', orderable: false },
-        { data: 'status', name: 'status', orderable: false },
+        { data: 'is_active', name: 'is_active', orderable: false },
         { data: 'created_at', name: 'created_at' },
         { data: 'actions', name: 'actions', orderable: false, searchable: false }
     ],

@@ -11,14 +11,10 @@
     </button>
 </form>
 
-<form action="{{ route('admin.users.toggleStatus', $user) }}" method="POST" style="display:inline;">
+<form action="{{ route('admin.users.toggle-status', $user) }}" method="POST">
     @csrf
     @method('PATCH')
-    <button type="submit" class="btn btn-info btn-sm">
-        @if($user->status === 'Active')
-            <i class="bi bi-x-circle"></i> Deactivate
-        @else
-            <i class="bi bi-check-circle"></i> Activate
-        @endif
+    <button type="submit" class="btn btn-warning">
+        {{ $user->is_active ? 'Deactivate' : 'Activate' }}
     </button>
 </form>

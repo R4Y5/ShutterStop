@@ -3,52 +3,78 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
+use App\Mail\OrderReceiptMail;
+use App\Mail\OrderStatusUpdatedMail;
 
 class CheckoutController extends Controller
 {
     /**
-     * Show checkout page (optional).
+     * Show checkout page
      */
     public function index()
     {
         $cart = session()->get('cart', []);
-        $total = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
-
-        return view('shop.checkout', compact('cart', 'total'));
+        return view('checkout.index', compact('cart'));
     }
 
     /**
-     * Process checkout: create order + order items.
+     * Process checkout
      */
     public function process(Request $request)
     {
+        $user = Auth::user();
         $cart = session()->get('cart', []);
 
         if (empty($cart)) {
-            return redirect()->route('cart.index')->with('error', 'Cart is empty!');
+            return redirect()->route('cart.index')->withErrors('Your cart is empty.');
         }
 
         // Create order
         $order = Order::create([
-            'user_id' => auth()->id(),
+            'user_id' => $user->id,
+            'status'  => 'Pending',
             'total'   => collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']),
-            'status'  => 'pending', // you can update later to 'paid' or 'shipped'
         ]);
 
-        // Create order items
+        // Save order items
         foreach ($cart as $productId => $item) {
-            $order->items()->create([
+            OrderItem::create([
+                'order_id'   => $order->id,
                 'product_id' => $productId,
                 'quantity'   => $item['quantity'],
                 'price'      => $item['price'],
             ]);
+
+            // Optionally reduce stock
+            Product::where('id', $productId)->decrement('stock', $item['quantity']);
         }
 
         // Clear cart
         session()->forget('cart');
 
-        return redirect()->route('account.orders')->with('success', 'Order placed successfully!');
+        // Send receipt email (HTML view)
+        Mail::to($user->email)->send(new OrderReceiptMail($order));
+
+        return redirect()->route('account.orders')
+                         ->with('success', 'Transaction completed! Receipt sent to your email.');
+    }
+
+    /**
+     * Admin updates order status
+     */
+    public function updateStatus(Request $request, Order $order)
+    {
+        $order->status = $request->status;
+        $order->save();
+
+        // Send email with PDF receipt attached
+        Mail::to($order->user->email)->send(new OrderStatusUpdatedMail($order));
+
+        return back()->with('success', 'Order status updated and email sent.');
     }
 }
