@@ -13,9 +13,16 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('status')->default('Pending');
-            $table->decimal('total', 10, 2);
+            $table->foreignId('user_id')
+                  ->constrained('users')
+                  ->onDelete('cascade');
+            $table->string('status')->default('Pending'); // Pending, Processing, Shipped, Completed, Cancelled
+            $table->decimal('total', 10, 2)->default(0);
+
+            // New fields for admin view
+            $table->string('address')->nullable();
+            $table->text('remarks')->nullable();
+
             $table->timestamps();
         });
     }

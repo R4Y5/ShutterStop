@@ -11,67 +11,92 @@ class CartController extends Controller
      * Show cart contents.
      */
     public function index()
-{
-    $cart = session()->get('cart', []);
+    {
+        $cart = session()->get('cart', []);
 
-    // Convert session cart array into a collection for easier handling
-    $cartItems = collect($cart);
+        // Backfill brand if missing (for older cart entries)
+        foreach ($cart as $id => &$item) {
+            if (!isset($item['brand'])) {
+                $product = Product::find($id);
+                $item['brand'] = $product ? $product->brand : '';
+            }
+        }
+        session()->put('cart', $cart);
 
-    $cartTotal = $cartItems->sum(function($item) {
-        return $item['price'] * $item['quantity'];
-    });
+        $cartItems = collect($cart);
 
-    return view('shop.cart', compact('cartItems', 'cartTotal'));
-}
+        $cartTotal = $cartItems->sum(function ($item) {
+            return $item['price'] * $item['quantity'];
+        });
+
+        return view('shop.cart', compact('cartItems', 'cartTotal'));
+    }
 
     /**
      * Add a product to the cart.
      */
     public function add(Request $request, Product $product)
-{
-    $cart = session()->get('cart', []);
+    {
+        $cart = session()->get('cart', []);
 
-    // Get quantity from request, default to 1
-    $quantity = (int) $request->input('quantity', 1);
-
-    if (isset($cart[$product->id])) {
-        // Add the requested quantity to existing
-        $cart[$product->id]['quantity'] += $quantity;
-    } else {
-        $cart[$product->id] = [
-            'name'     => $product->name,
-            'quantity' => $quantity,
-            'price'    => $product->price,
-        ];
-    }
-
-    session()->put('cart', $cart);
-
-    return redirect()->back()->with('success', 'Product added to cart!');
-}
-
-    /**
-     * Update product quantity in the cart.
-     */
-    public function update(Request $request, $id)
-{
-    $cart = session()->get('cart', []);
-
-    if (isset($cart[$id])) {
         $quantity = (int) $request->input('quantity', 1);
 
-        // Prevent exceeding stock
-        $product = Product::findOrFail($id);
-        if ($quantity > $product->stock) {
-            $quantity = $product->stock;
+        if (isset($cart[$product->id])) {
+            $cart[$product->id]['quantity'] += $quantity;
+        } else {
+            $cart[$product->id] = [
+                'name'     => $product->name,
+                'brand'    => $product->brand,   // ✅ brand stored
+                'quantity' => $quantity,
+                'price'    => $product->price,
+            ];
         }
 
-        $cart[$id]['quantity'] = $quantity;
         session()->put('cart', $cart);
+
+        return redirect()->back()->with('success', 'Product added to cart!');
     }
 
-    return redirect()->route('cart.index')->with('success', 'Cart updated successfully!');
-}
+    /**
+     * Update multiple items in the cart at once.
+     */
+    public function updateAll(Request $request)
+    {
+        $cart = session()->get('cart', []);
+
+        // Update quantities
+        if ($request->has('quantities')) {
+            foreach ($request->quantities as $id => $qty) {
+                if (isset($cart[$id])) {
+                    $product = Product::find($id);
+                    if ($product) {
+                        if ($qty > $product->stock) {
+                            $qty = $product->stock;
+                        }
+                        // Ensure brand is always present
+                        $cart[$id]['brand'] = $product->brand;
+                    }
+                    $cart[$id]['quantity'] = (int) $qty;
+                }
+            }
+        }
+
+        // Remove selected items
+        if ($request->has('remove')) {
+            foreach ($request->remove as $id) {
+                unset($cart[$id]);
+            }
+        }
+
+        // Save remarks in session (to carry over to checkout)
+        if ($request->has('remarks')) {
+            session(['cart_remarks' => $request->remarks]);
+        }
+
+        session()->put('cart', $cart);
+
+        return redirect()->route('cart.index')->with('success', 'Cart updated successfully!');
+    }
 
     /**
      * Remove a product from the cart.
@@ -94,6 +119,7 @@ class CartController extends Controller
     public function clear()
     {
         session()->forget('cart');
+        session()->forget('cart_remarks'); // also clear remarks
         return redirect()->route('cart.index')->with('success', 'Cart cleared!');
     }
 }

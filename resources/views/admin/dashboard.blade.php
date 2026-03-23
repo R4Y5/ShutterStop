@@ -19,7 +19,7 @@
     
         <div class="bg-white shadow p-4 rounded">
             <h2 class="text-xl font-semibold mb-2">Manage Orders</h2>
-            <a href="{{ url('/orders') }}" class="btn btn-primary">Go to Orders</a>
+            <a href="{{ route('admin.orders.index') }}" class="btn btn-primary">Go to Orders</a>
         </div>
 
         @role('admin')

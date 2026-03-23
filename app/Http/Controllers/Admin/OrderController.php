@@ -13,24 +13,28 @@ class OrderController extends Controller
      */
     public function index()
     {
-        // Fetch all orders with customer info
-        $orders = Order::with('user', 'items.product')->latest()->paginate(20);
+        // Admin sees all orders
+        $orders = Order::with('user', 'items.product')
+            ->latest()
+            ->paginate(20);
 
         return view('admin.orders.index', compact('orders'));
     }
 
-    /**
-     * Show single order details
-     */
+    public function edit(Order $order)
+    {
+        $order->load('user', 'items.product');
+        return view('admin.orders.edit', compact('order'));
+    }
+
+    // Order details
     public function show(Order $order)
     {
         $order->load('user', 'items.product');
         return view('admin.orders.show', compact('order'));
     }
-
-    /**
-     * Update order status
-     */
+    
+    // Update status
     public function updateStatus(Request $request, Order $order)
     {
         $request->validate([
@@ -39,7 +43,7 @@ class OrderController extends Controller
 
         $order->update(['status' => $request->status]);
 
-        return redirect()->route('admin.orders.index')->with('success', 'Order status updated.');
+        return back()->with('success', 'Order status updated.');
     }
 
     /**
@@ -49,5 +53,19 @@ class OrderController extends Controller
     {
         $order->delete();
         return redirect()->route('admin.orders.index')->with('success', 'Order deleted.');
+    }
+    
+    public function update(Request $request, Order $order)
+    {
+        $request->validate([
+            'address' => 'nullable|string|max:255',
+            'remarks' => 'nullable|string',
+            'status'  => 'required|in:Pending,Processing,Shipped,Completed,Cancelled',
+        ]);
+
+        $order->update($request->only('address', 'remarks', 'status'));
+
+        return redirect()->route('admin.orders.index')
+                        ->with('success', 'Order updated successfully.');
     }
 }

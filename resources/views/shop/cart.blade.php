@@ -5,84 +5,73 @@
     <h2 class="mb-4">Shopping Cart</h2>
 
     @if($cartItems->count())
-        <table class="table table-bordered align-middle">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th style="width:200px;">Quantity</th>
-                    <th>Subtotal</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($cartItems as $id => $item)
+        <form action="{{ route('cart.updateAll') }}" method="POST">
+            @csrf
+            @method('PUT')
+
+            <table class="table table-bordered align-middle">
+                <thead>
                     <tr>
-                        <td>{{ $item['name'] }}</td>
-                        <td>₱{{ number_format($item['price'], 2) }}</td>
-                        <td>
-                            <form action="{{ route('cart.update', $id) }}" method="POST" class="d-flex align-items-center">
-                                @csrf
-                                @method('PUT')
-                                <!-- Decrement -->
-                                <button type="button" class="btn btn-sm btn-outline-secondary me-2"
-                                        onclick="changeQuantity({{ $id }}, -1)">–</button>
-
-                                <!-- Quantity input -->
-                                <input type="number" name="quantity"
-                                       id="quantity-{{ $id }}"
-                                       value="{{ $item['quantity'] }}"
-                                       min="1"
-                                       class="form-control text-center"
-                                       style="width:70px;">
-
-                                <!-- Increment -->
-                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2"
-                                        onclick="changeQuantity({{ $id }}, 1)">+</button>
-
-                                <!-- Update -->
-                                <button type="submit" class="btn btn-sm btn-primary ms-3">Update</button>
-                            </form>
-                        </td>
-                        <td>₱{{ number_format($item['price'] * $item['quantity'], 2) }}</td>
-                        <td>
-                            <form action="{{ route('cart.remove', $id) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
-                            </form>
-                        </td>
+                        <th>Remove</th>
+                        <th>Quantity</th>
+                        <th>Product</th>
+                        <th>Brand</th>
+                        <th>Price</th>
+                        <th>Subtotal</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @php $total = 0; @endphp
+                    @foreach($cartItems as $id => $item)
+                        @php
+                            $subtotal = $item['price'] * $item['quantity'];
+                            $total += $subtotal;
+                        @endphp
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="remove[]" value="{{ $id }}">
+                            </td>
+                            <td>
+                                <input type="number" name="quantities[{{ $id }}]" 
+                                       value="{{ $item['quantity'] }}" min="1" 
+                                       class="form-control text-center" style="width:80px;">
+                            </td>
+                            <td>{{ $item['name'] }}</td>
+                            <td>{{ $item['brand'] ?? '' }}</td>
+                            <td>₱{{ number_format($item['price'], 2) }}</td>
+                            <td>₱{{ number_format($subtotal, 2) }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
 
-          <div class="text-end">
-            <h4>Total: ₱{{ number_format($cartTotal, 2) }}</h4>
+            <!-- Amount Payable -->
+            <div class="mb-3 text-end">
+                <h4>Total Amount Payable: ₱{{ number_format($total, 2) }}</h4>
+            </div>
 
-            <form action="{{ route('cart.clear') }}" method="POST">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="btn btn-warning">Clear Cart</button>
-    </form>
-            <a href="{{ route('checkout.index') }}" class="btn btn-success">Proceed to Checkout</a>
-        </div>
+            <!-- Buttons -->
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-warning">Update Cart</button>
+                <a href="{{ url('/shop') }}" class="btn btn-secondary">Add Items</a>
+            </div>
+        </form>
+
+        <!-- Checkout directly from cart -->
+        <form action="{{ route('checkout.process') }}" method="POST" class="mt-3">
+            @csrf
+
+            <!-- ✅ Remarks moved here -->
+            <div class="mb-3">
+                <label for="remarks" class="form-label">Remarks</label>
+                <textarea name="remarks" id="remarks" rows="3" class="form-control">{{ old('remarks', session('cart_remarks')) }}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success">Place Order</button>
+        </form>
     @else
         <p class="text-muted">Your cart is empty.</p>
+        <a href="{{ url('/shop') }}" class="btn btn-primary">Go to Shop</a>
     @endif
 </div>
-
-{{-- JS for increment/decrement --}}
-<script>
-function changeQuantity(itemId, change) {
-    const input = document.getElementById('quantity-' + itemId);
-    let current = parseInt(input.value);
-    let min = parseInt(input.min);
-
-    let newValue = current + change;
-    if (newValue < min) newValue = min;
-
-    input.value = newValue;
-}
-</script>
 @endsection

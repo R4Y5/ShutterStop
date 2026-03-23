@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
@@ -26,12 +27,12 @@ Route::get('/home', [HomeController::class, 'index'])
     ->name('home')
     ->middleware(['auth', 'verified']);
 
-// ===============================
-// Admin Routes (auth + verified + role:admin)
-// ===============================
-Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
+// --------------------
+// ADMIN ROUTES
+// --------------------
+Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(function () {
     // Admin dashboard
-    Route::get('/admin', function () {
+    Route::get('/', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
@@ -47,22 +48,28 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     // Categories management
     Route::resource('categories', CategoryController::class);
 
-    // Admin users management
-    Route::get('/admin/users/data', [UserController::class, 'getData'])->name('admin.users.data');
-    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
-    Route::get('/admin/users/create', [UserController::class, 'create'])->name('admin.users.create');
-    Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
-    Route::get('/admin/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
-    Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
-    Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
-    Route::patch('/admin/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
-    ->name('admin.users.toggle-status');
+    // Users management
+    Route::get('/users/data', [UserController::class, 'getData'])->name('admin.users.data');
+    Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+    Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('admin.users.toggle-status');
+
+    // Orders management (Admin)
+    Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
+    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
+    Route::get('/orders/{order}/edit', [AdminOrderController::class, 'edit'])->name('admin.orders.edit');
+    Route::put('/orders/{order}', [AdminOrderController::class, 'update'])->name('admin.orders.update');
+    Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])->name('admin.orders.destroy');
 
 });
 
-// ===============================
-// Customer Routes (auth + verified + role:customer)
-// ===============================
+// --------------------
+// CUSTOMER ROUTES
+// --------------------
 Route::middleware(['auth', 'verified'])->group(function () {
     // Shop
     Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
@@ -75,28 +82,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/account/change-password', [AccountController::class, 'changePasswordForm'])->name('account.password.form');
     Route::post('/account/change-password', [AccountController::class, 'changePassword'])->name('account.password.update');
 
-    // Orders
+    // Orders (Customer)
     Route::get('/account/orders', [OrdersController::class, 'index'])->name('account.orders');
 
     // Cart
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
-    Route::put('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::put('/cart/update-all', [CartController::class, 'updateAll'])->name('cart.updateAll');
     Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
     Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
     // Checkout
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
 
     // Reviews
     Route::post('/products/{product}/review', [ReviewController::class, 'store'])->name('products.review');
 });
-
-Route::prefix('admin')->middleware(['auth', 'is_admin'])->group(function () {
-    Route::get('/orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])
-        ->name('admin.orders.index');
-    Route::get('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])
-        ->name('admin.orders.show');
-});
-

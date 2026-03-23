@@ -19,6 +19,7 @@ class CheckoutController extends Controller
     public function index()
     {
         $cart = session()->get('cart', []);
+        $remarks = session('cart_remarks'); // get remarks saved from cart
         return view('checkout.index', compact('cart'));
     }
 
@@ -34,11 +35,14 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->withErrors('Your cart is empty.');
         }
 
+        $remarks = $request->input('remarks', session('cart_remarks'));
+
         // Create order
         $order = Order::create([
             'user_id' => $user->id,
             'status'  => 'Pending',
             'total'   => collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']),
+            'remarks'    => $remarks,
         ]);
 
         // Save order items
@@ -56,6 +60,7 @@ class CheckoutController extends Controller
 
         // Clear cart
         session()->forget('cart');
+        session()->forget('cart_remarks');
 
         // Send receipt email (HTML view)
         Mail::to($user->email)->send(new OrderReceiptMail($order));
