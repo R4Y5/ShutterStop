@@ -7,9 +7,14 @@
     <form action="{{ route('admin.users.store') }}" method="POST">
         @csrf
 
-        <div class="mb-3">
-            <label>Name</label>
-            <input type="text" name="name" class="form-control" required>
+        <div class="form-group">
+            <label for="first_name">First Name</label>
+            <input type="text" name="first_name" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label for="last_name">Last Name</label>
+            <input type="text" name="last_name" class="form-control" required>
         </div>
 
         <div class="mb-3">

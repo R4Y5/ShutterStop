@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
@@ -31,16 +32,18 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255', 
-            'email' => 'required|email|unique:users,email', 
-            'password' => 'required|string|min:8|confirmed', 
-            'role' => 'required|string',
+            'first_name' => 'required|string|max:255', 
+            'last_name'  => 'required|string|max:255',
+            'email'      => 'required|email|unique:users,email', 
+            'password'   => 'required|string|min:8|confirmed', 
+            'role'       => 'required|string',
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
+            'first_name' => $request->first_name,
+            'last_name'  => $request->last_name,
+            'email'      => $request->email,
+            'password'   => bcrypt($request->password),
         ]);
 
         $user->assignRole($request->role);
@@ -56,32 +59,26 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name'       => 'required|string|max:255',
-            'contact_no' =>'nullable|string|max:20',
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'required|string|max:255',
+            'email'      => 'required|email|unique:users,email,'.$user->id,
+            'contact_no' => 'nullable|string|max:20',
             'address'    => 'nullable|string|max:255',
             'role'       => 'required|string',
             'photo'      => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
-        $data = $request->only(['name', 'email', 'contact_no', 'address']);
+        $data = $request->only(['first_name','last_name','email','contact_no','address']);
 
         // Handle photo upload
         if ($request->hasFile('photo')) {
-
-            // Deleting old photo if exists
             if ($user->photo && Storage::disk('public')->exists($user->photo)) {
                 Storage::disk('public')->delete($user->photo);
             }
-
-            // Save new photo
             $data['photo'] = $request->file('photo')->store('photos', 'public');
         }
 
-        // Update user record
         $user->update($data);
-
-        // Update basic info
-        //$user->update($request->only('name', 'email'));
 
         // Update role
         $user->syncRoles([$request->role]);
@@ -92,20 +89,16 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully!');
     }
 
-    // Updating Status
     public function toggleStatus(User $user)
     {
         $user->status = $user->status === 'Active' ? 'Inactive' : 'Active';
         $user->save();
-
         return redirect()->route('admin.users.index')->with('success', 'User status updated successfully!');
     }
 
-    // Optional: keep role update separate if you want quick dropdown changes
     public function updateRole(Request $request, User $user)
     {
         $user->syncRoles([$request->role]);
@@ -117,24 +110,27 @@ class UserController extends Controller
         $users = User::with('roles')->select('users.*');
 
         return DataTables::of($users)
-        ->addColumn('photo', function ($user) {
-            if ($user->photo) {
-                return '<img src="'.asset('storage/'.$user->photo).'" width="50" class="rounded">';
-            }
-            return '<span class="text-muted">No photo</span>';
-        })
-        ->addColumn('role', function ($user) {
-            return $user->roles->pluck('name')->implode(', ') ?: 'None';
-        })
-        ->addColumn('status', function ($user) {
-            return $user->status === 'Active'
-                ? '<span class="badge bg-success">Active</span>'
-                : '<span class="badge bg-danger">Inactive</span>';
-        })
-        ->addColumn('actions', function ($user) {
-            return view('admin.users.partials.actions', compact('user'))->render();
-        })
-        ->rawColumns(['photo','status','actions'])
-        ->make(true);
+            ->addColumn('full_name', function ($user) {
+                return $user->first_name.' '.$user->last_name;
+            })
+            ->addColumn('photo', function ($user) {
+                if ($user->photo) {
+                    return '<img src="'.asset('storage/'.$user->photo).'" width="50" class="rounded">';
+                }
+                return '<span class="text-muted">No photo</span>';
+            })
+            ->addColumn('role', function ($user) {
+                return $user->roles->pluck('name')->implode(', ') ?: 'None';
+            })
+            ->addColumn('status', function ($user) {
+                return $user->status === 'Active'
+                    ? '<span class="badge bg-success">Active</span>'
+                    : '<span class="badge bg-danger">Inactive</span>';
+            })
+            ->addColumn('actions', function ($user) {
+                return view('admin.users.partials.actions', compact('user'))->render();
+            })
+            ->rawColumns(['photo','status','actions'])
+            ->make(true);
     }
 }

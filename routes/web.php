@@ -41,10 +41,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/products/trashed/data', [ProductController::class, 'getTrashedData'])->name('products.trashed.data');
     Route::post('/products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
     Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
-    Route::delete('/products/photos/{id}', [App\Http\Controllers\ProductController::class, 'deletePhoto'])
-    ->name('products.photos.delete');
-
-
+    Route::delete('/products/photos/{id}', [ProductController::class, 'deletePhoto'])->name('products.photos.delete');
 
     // Categories management
     Route::resource('categories', CategoryController::class);
@@ -63,7 +60,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
 // ===============================
 // Customer Routes (auth + verified + role:customer)
 // ===============================
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:customer'])->group(function () {
     // Shop
     Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
     Route::get('/products/{product}', [ShopController::class, 'show'])->name('products.show');
@@ -79,16 +76,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/account/orders', [OrdersController::class, 'index'])->name('account.orders');
 
     // Cart
-    Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
-    // Add product to cart (POST)
-    Route::post('/cart/add/{product}', [App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
-    // Update quantity (PUT)
-    Route::put('/cart/update/{id}', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
-    // Remove product (DELETE)
-    Route::delete('/cart/remove/{id}', [App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
-    // Clear cart (DELETE)
-    Route::delete('/cart/clear', [App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
-
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+    Route::put('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
     // Checkout
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');

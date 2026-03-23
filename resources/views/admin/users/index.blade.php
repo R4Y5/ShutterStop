@@ -18,7 +18,8 @@
             <tr>
                 <th>Photo</th>
                 <th>Account ID</th>
-                <th>Name</th>
+                <th>First Name</th>
+                <th>Last Name</th>
                 <th>Email</th>
                 <th>Role</th>
                 <th>Status</th>
@@ -34,23 +35,25 @@
 <script>
 $(function() {
     $('#users-table').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: '{{ route('admin.users.data') }}',
-        columns: [
-            { data: 'photo', name: 'photo', orderable: false, searchable: false },
-            { data: 'id', name: 'id' },
-            { data: 'name', name: 'name' },
-            { data: 'email', name: 'email' },
-            { data: 'role', name: 'role', orderable: false },
-            { data: 'status', name: 'status', orderable: false },
-            { data: 'created_at', name: 'created_at' },
-            { data: 'actions', name: 'actions', orderable: false, searchable: false }
-        ],
-        pageLength: 10,
-        order: [[2, 'asc']], // default sort by Name
-        responsive: true
-    });
+    processing: true,
+    serverSide: true,
+    ajax: '{{ route("admin.users.data") }}',
+    columns: [
+        { data: 'photo', name: 'photo', orderable: false, searchable: false },
+        { data: 'id', name: 'id' },
+        { data: 'first_name', name: 'first_name' },
+        { data: 'last_name', name: 'last_name' },
+        { data: 'email', name: 'email' },
+        { data: 'role', name: 'role', orderable: false },
+        { data: 'status', name: 'status', orderable: false },
+        { data: 'created_at', name: 'created_at' },
+        { data: 'actions', name: 'actions', orderable: false, searchable: false }
+    ],
+    pageLength: 10,
+    order: [[2, 'asc']], // default sort by First Name
+    responsive: true
+});
+
 });
 </script>
 @endsection

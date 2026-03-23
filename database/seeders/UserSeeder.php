@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
@@ -13,46 +15,46 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create admin users
-        $admin1 = User::updateOrCreate(
+        // Ensure roles exist (Spatie Permission)
+        Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'customer', 'guard_name' => 'web']);
+
+        // Admin user
+        $admin = User::updateOrCreate(
             ['email' => 'admin1@gmail.com'],
             [
-                'name' => 'Admin User 1',
-                'password' => bcrypt('admin123'),
+                'first_name'        => 'Admin',
+                'last_name'         => 'User',
+                'contact_no'        => '09171234567',
+                'address'           => '123 Admin Street, Parañaque',
                 'email_verified_at' => Carbon::now(),
+                'password'          => Hash::make('admin123'),
+                'status'            => 'Active',
+                'role'              => 'admin', // optional if you keep column
+                'photo'             => null,
+                'remember_token'    => null,
+                'phone'             => '09171234567',
             ]
         );
-        $admin1->assignRole('admin');
+        $admin->assignRole('admin');
 
-        $admin2 = User::updateOrCreate(
-            ['email' => 'admin2@gmail.com'],
-            [
-                'name' => 'Admin User 2',
-                'password' => bcrypt('admin123'),
-                'email_verified_at' => Carbon::now(),
-            ]
-        );
-        $admin2->assignRole('admin');
-
-        // Create customer users
-        $customer1 = User::updateOrCreate(
+        // Customer user
+        $customer = User::updateOrCreate(
             ['email' => 'customer@gmail.com'],
             [
-                'name' => 'Customer User',
-                'password' => bcrypt('customer123'),
+                'first_name'        => 'Customer',
+                'last_name'         => 'User',
+                'contact_no'        => '09981234567',
+                'address'           => '456 Customer Avenue, Parañaque',
                 'email_verified_at' => Carbon::now(),
+                'password'          => Hash::make('customer123'),
+                'status'            => 'Active',
+                'role'              => 'customer', // optional if you keep column
+                'photo'             => null,
+                'remember_token'    => null,
+                'phone'             => '09981234567',
             ]
         );
-        $customer1->assignRole('customer');
-
-        $customer2 = User::updateOrCreate(
-            ['email' => 'customer2@gmail.com'],
-            [
-                'name' => 'Customer User 2',
-                'password' => bcrypt('customer123'),
-                'email_verified_at' => Carbon::now(),
-            ]
-        );
-        $customer2->assignRole('customer');
+        $customer->assignRole('customer');
     }
 }
