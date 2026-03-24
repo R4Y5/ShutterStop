@@ -42,30 +42,54 @@
             <p><strong>Stock:</strong> {{ $product->stock }}</p>
 
             <form action="{{ route('cart.add', $product->id) }}" method="POST" class="d-flex align-items-center">
-    @csrf
-    <div class="me-3">
-        <label for="quantity" class="form-label">Quantity</label>
-        <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ $product->stock }}" class="form-control" style="width:100px;">
-    </div>
-    <div class="mt-4">
-        <button type="submit" class="btn btn-primary">Add to Cart</button>
-    </div>
-</form>
+                @csrf
+                <div class="me-3">
+                    <label for="quantity" class="form-label">Quantity</label>
+                    <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ $product->stock }}" class="form-control" style="width:100px;">
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Add to Cart</button>
+                </div>
+            </form>
         </div>
     </div>
+
+    <!-- Review Form -->
+    @if(auth()->check())
+        @php
+            $orders = \App\Models\Order::where('user_id', auth()->id())
+                ->where('status','completed')
+                ->whereHas('items', fn($q) => $q->where('product_id',$product->id))
+                ->get();
+        @endphp
+    @endif
 
     <!-- Reviews Section -->
     <div class="mt-5">
         <h4>Customer Reviews</h4>
         @forelse($product->reviews as $review)
-            <div class="border p-3 mb-2">
-                <strong>{{ $review->user->name }}</strong>
-                <span class="text-muted">rated {{ $review->rating }}/5</span>
-                <p>{{ $review->comment }}</p>
-            </div>
-        @empty
-            <p class="text-muted">No reviews yet.</p>
-        @endforelse
+    <div class="border p-3 mb-2">
+        <strong>{{ $review->user->first_name }} {{ $review->user->last_name }}</strong>
+        <span class="text-muted">
+            on {{ $review->created_at->format('M d, Y') }}
+        </span>
+
+        <div class="mt-1">
+            @for($i = 1; $i <= 5; $i++)
+                @if($i <= $review->rating)
+                    <span class="text-warning">&#9733;</span>
+                @else
+                    <span class="text-secondary">&#9734;</span>
+                @endif
+            @endfor
+        </div>
+
+        <p class="mt-2">{{ $review->comment }}</p>
+    </div>
+@empty
+    <p class="text-muted">No reviews yet.</p>
+@endforelse
+
     </div>
 </div>
 

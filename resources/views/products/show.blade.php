@@ -56,31 +56,6 @@
 
                 $existingReview = $product->reviews()->where('user_id', auth()->id())->first();
             @endphp
-
-            @if($hasCompletedOrder)
-                <form action="{{ route('products.review', $product->id) }}" method="POST" class="mb-4">
-                    @csrf
-                    <div class="mb-3">
-                        <label>Rating</label>
-                        <select name="rating" class="form-select" required>
-                            @for($i=1;$i<=5;$i++)
-                                <option value="{{ $i }}" {{ $existingReview && $existingReview->rating == $i ? 'selected' : '' }}>
-                                    {{ $i }}
-                                </option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label>Comment</label>
-                        <textarea name="comment" class="form-control">{{ $existingReview->comment ?? '' }}</textarea>
-                    </div>
-                    <button type="submit" class="btn btn-success">
-                        {{ $existingReview ? 'Update Review' : 'Submit Review' }}
-                    </button>
-                </form>
-            @else
-                <p class="text-muted">You can only review this product after completing an order.</p>
-            @endif
         @endif
 
         {{-- List all reviews --}}
@@ -89,13 +64,7 @@
         {{-- Debug output --}}
         <pre>{{ print_r($review->user, true) }}</pre>
 
-        <strong>
-            @if(isset($review->user->first_name) && isset($review->user->last_name))
-                {{ $review->user->first_name }} {{ $review->user->last_name }}
-            @else
-                {{ $review->user->name }}
-            @endif
-        </strong>
+        <strong>{{ $review->user->first_name }} {{ $review->user->last_name }}</strong>
         <span class="text-muted">on {{ $review->created_at->format('M d, Y') }}</span>
 
         <div class="mt-1">

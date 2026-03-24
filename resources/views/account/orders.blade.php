@@ -4,55 +4,96 @@
 <div class="container">
     <h2 class="mb-4">My Orders</h2>
 
-    @if($orders->isEmpty())
-        <p class="text-muted">You have no orders yet.</p>
-    @else
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Order #</th>
-                    <th>Status</th>
-                    <th>Total</th>
-                    <th>Date</th>
-                    <th>Items</th>
-                </tr>
-            </thead>
-            <tbody>
-                    @foreach($orders as $order)
-                        <tr>
-                            <td>{{ $order->id }}</td>
-                            <td>{{ ucfirst($order->status) }}</td>
-                            <td>₱{{ number_format($order->total, 2) }}</td>
-                            <td>{{ $order->created_at->format('M d, Y') }}</td>
-                            <td>
-                                <ul>
-                                @foreach($order->items as $item)
-                        <li>
-                            {{ $item->product->name }} (x{{ $item->quantity }})
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-                            @if(strtolower($order->status) === 'completed')
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Order #</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Date</th>
+                <th>Items</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($orders as $order)
+                <tr>
+                    <td>{{ $order->id }}</td>
+                    <td>{{ ucfirst($order->status) }}</td>
+                    <td>₱{{ number_format($order->total, 2) }}</td>
+                    <td>{{ $order->created_at->format('M d, Y') }}</td>
+                    <td>
+                        @foreach($order->items as $item)
+                            <div class="mb-3">
+                                • {{ $item->product->name }} (x{{ $item->quantity }})
+
                                 @php
-                                    $existingReview = $item->product->reviews()
+                                    $review = $item->product->reviews()
                                         ->where('user_id', auth()->id())
+                                        ->where('order_id', $order->id)
                                         ->first();
                                 @endphp
 
-                                @if($existingReview)
-                                    <a href="{{ route('products.review.form', $item->product->id) }}"
-                                    class="btn btn-sm btn-warning ms-2">Edit Review</a>
+                                @if($review)
+                                    {{-- Edit Review Form --}}
+                                    <form action="{{ route('reviews.update', $review->id) }}" method="POST" class="mt-2">
+                                        @csrf
+                                        @method('PUT')
+
+                                        <div class="mb-2">
+                                            <label>Rating</label>
+                                            <select name="rating" class="form-select">
+                                                @for($i=1;$i<=5;$i++)
+                                                    <option value="{{ $i }}" {{ $review->rating == $i ? 'selected' : '' }}>
+                                                        {{ $i }}
+                                                    </option>
+                                                @endfor
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label>Comment</label>
+                                            <textarea name="comment" class="form-control">{{ $review->comment }}</textarea>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-warning btn-sm">Update Review</button>
+                                    </form>
                                 @else
-                                    <a href="{{ route('products.review.form', $item->product->id) }}"
-                                    class="btn btn-sm btn-success ms-2">Write Review</a>
+                                    {{-- New Review Form --}}
+                                    <form action="{{ route('products.review', $item->product->id) }}" method="POST" class="mt-2">
+                                        @csrf
+                                        <input type="hidden" name="order_id" value="{{ $order->id }}">
+
+                                        <div class="mb-2">
+                                            <label>Rating</label>
+                                            <select name="rating" class="form-select" required>
+                                                @for($i=1;$i<=5;$i++)
+                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                @endfor
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label>Comment</label>
+                                            <textarea name="comment" class="form-control"></textarea>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-success btn-sm">Submit Review</button>
+                                    </form>
                                 @endif
-                            @endif
-                        </li>
-                    @endforeach
-                            </ul>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    @endif
+                            </div>
+                        @endforeach
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5" class="text-muted">No orders found.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
 </div>
 @endsection

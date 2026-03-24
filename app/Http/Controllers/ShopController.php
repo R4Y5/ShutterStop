@@ -61,18 +61,62 @@ class ShopController extends Controller
      * Submit a product review.
      */
     public function review(Request $request, Product $product)
-    {
-        $request->validate([
-            'rating'  => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string',
-        ]);
+{
+    $request->validate([
+        'rating'   => 'required|integer|min:1|max:5',
+        'comment'  => 'nullable|string',
+        'order_id' => 'required|exists:orders,id', // validate that order exists
+    ]);
 
-        $product->reviews()->create([
-            'user_id' => auth()->id(),
+    // Double‑check that this order belongs to the logged‑in user and includes the product
+    $order = \App\Models\Order::where('id', $request->order_id)
+        ->where('user_id', auth()->id())
+        ->where('status', 'completed')
+        ->whereHas('items', fn($q) => $q->where('product_id', $product->id))
+        ->firstOrFail();
+
+    // Now check if a review already exists for THIS order
+    $existingReview = $product->reviews()
+        ->where('user_id', auth()->id())
+        ->where('order_id', $order->id)
+        ->first();
+    
+    if ($existingReview) {
+        $existingReview->update([
             'rating'  => $request->rating,
             'comment' => $request->comment,
         ]);
-
-        return back()->with('success', 'Review submitted!');
+    } else {
+        $product->reviews()->create([
+            'user_id'  => auth()->id(),
+            'order_id' => $order->id,
+            'rating'   => $request->rating,
+            'comment'  => $request->comment,
+        ]);
     }
+
+    return back()->with('success', 'Review submitted!');
+}
+
+public function updateReview(Request $request, \App\Models\Review $review)
+{
+    $request->validate([
+        'rating'  => 'required|integer|min:1|max:5',
+        'comment' => 'nullable|string',
+    ]);
+
+    // Ensure the logged-in user owns this review
+    if ($review->user_id !== auth()->id()) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    $review->update([
+        'rating'  => $request->rating,
+        'comment' => $request->comment,
+    ]);
+
+    return back()->with('success', 'Review updated!');
+}
+
+
 }

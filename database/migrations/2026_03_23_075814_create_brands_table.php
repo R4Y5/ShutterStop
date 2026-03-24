@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (!Schema::hasTable('brands')) {
         Schema::create('brands', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->timestamps();
-        });
+            });
+        }   
 
         Schema::table('products', function (Blueprint $table) {
             $table->foreignId('brand_id')->nullable()->constrained('brands')->onDelete('set null');

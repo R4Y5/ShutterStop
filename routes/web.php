@@ -31,7 +31,6 @@ Route::get('/home', [HomeController::class, 'index'])
 // ADMIN ROUTES
 // --------------------
 Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(function () {
-    // Admin dashboard
     Route::get('/', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
@@ -82,6 +81,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
     Route::get('/orders/{order}/edit', [AdminOrderController::class, 'edit'])->name('admin.orders.edit');
     Route::put('/orders/{order}', [AdminOrderController::class, 'update'])->name('admin.orders.update');
     Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])->name('admin.orders.destroy');
+
+    // Admin review listing
+    Route::get('/reviews/data', [ReviewController::class, 'getData'])->name('admin.reviews.data');
 });
 
 // --------------------
@@ -112,22 +114,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Checkout
     Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
 
-    // Customer review form + submission
-    Route::get('/products/{product}/review', [ReviewController::class, 'form'])
-    ->name('products.review.form')
-    ->middleware('auth');
+    // Reviews (Customer)
+    Route::post('/products/{product}/review', [ShopController::class, 'review'])
+        ->name('products.review');
 
-    Route::post('/products/{product}/review', [ReviewController::class, 'store'])
-    ->name('products.review')
-    ->middleware('auth');
-
-    // Admin review listing
-    Route::middleware(['auth','verified','role:admin'])->prefix('admin')->group(function () {
-        Route::get('/reviews/data', [ReviewController::class, 'getData'])->name('admin.reviews.data');
-    });
+    Route::put('/reviews/{review}', [ShopController::class, 'updateReview'])
+        ->name('reviews.update');
 
     // My Reviews page
     Route::get('/account/reviews', [ReviewController::class, 'myReviews'])
-    ->name('account.reviews')
-    ->middleware('auth');
+        ->name('account.reviews');
 });
