@@ -13,6 +13,7 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\AdminDashboardController;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderStatusUpdatedMail;
 
@@ -92,10 +93,10 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
     })->name('admin.reviews.index');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('admin.reviews.destroy');
 
-    // Reports / Analytics
-    Route::get('/reports', function () {
-        return view('admin.reports.index');
-    })->name('admin.reports.index');
+    // Reports and Analytics
+    Route::get('/admin/reports/analytics', [AdminDashboardController::class, 'analytics'])
+     ->name('admin.reports.analytics');
+
 });
 
 // --------------------

@@ -136,7 +136,7 @@
             <div class="admin-card h-100">
                 <h2 class="card-title-retro">Reports / Analytics</h2>
                 <p class="small text-uppercase font-weight-bold">Data & Performance Stats</p>
-                <a href="{{ route('admin.reports.index') }}" class="btn-admin-retro">View Reports</a>
+                <a href="{{ route('admin.reports.analytics') }}" class="btn-admin-retro">View Reports</a>
             </div>
         </div>
     </div>
