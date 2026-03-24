@@ -48,24 +48,27 @@ class CheckoutController extends Controller
         ]);
 
         // Save order items
-        foreach ($cart as $productId => $item) {
-            OrderItem::create([
-                'order_id'   => $order->id,
-                'product_id' => $productId,
-                'quantity'   => $item['quantity'],
-                'price'      => $item['price'],
-            ]);
 
-            // Optionally reduce stock
-            Product::where('id', $productId)->decrement('stock', $item['quantity']);
-        }
+foreach ($cart as $productId => $item) {
+    OrderItem::create([
+        'order_id'   => $order->id,
+        'product_id' => $productId,
+        'quantity'   => $item['quantity'],
+        'price'      => $item['price'],
+        'first_name' => $order->first_name,
+        'email'      => $order->email,
+    ]);
+
+    // Optionally reduce stock
+    Product::where('id', $productId)->decrement('stock', $item['quantity']);
+}
 
         // Clear cart
         session()->forget('cart');
         session()->forget('cart_remarks');
 
         $order->load('items.product');
-        
+
         // Send receipt email (HTML view)
         Mail::to($user->email)->send(new OrderReceiptMail($order));
 

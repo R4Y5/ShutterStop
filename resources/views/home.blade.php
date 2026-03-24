@@ -28,15 +28,15 @@
             </select>
         </div>
         <div class="col-md-2">
-            <select name="brand" class="form-control border-2 border-dark">
-                <option value="">All Brands</option>
-                @foreach($brands as $brand)
-                    <option value="{{ $brand->brand }}"
-                        {{ request('brand') == $brand->brand ? 'selected' : '' }}>
-                        {{ $brand->brand }}
-                    </option>
-                @endforeach
-            </select>
+        <select name="brand" class="form-control border-2 border-dark">
+    <option value="">All Brands</option>
+    @foreach($brands as $brand)
+        <option value="{{ $brand }}"
+            {{ request('brand') == $brand ? 'selected' : '' }}>
+            {{ $brand }}
+        </option>
+    @endforeach
+</select>
         </div>
         <div class="col-md-1">
             <button type="submit" class="btn-retro btn-cart w-100">Search</button>

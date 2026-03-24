@@ -75,7 +75,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
     Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
     Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('admin.users.toggle-status');
-
     // Orders management (Admin)
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
@@ -133,4 +132,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/account/reviews/{review}', [ReviewController::class, 'update'])->name('account.reviews.update');
 
     Route::get('/account/reviews', [ReviewController::class, 'myReviews'])->name('account.reviews');
-});
+    Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+    });
