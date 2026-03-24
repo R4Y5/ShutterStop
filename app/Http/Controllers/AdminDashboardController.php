@@ -3,82 +3,33 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use LaravelDaily\LaravelCharts\Classes\LaravelChart;
-use App\Models\Order;
 use App\Models\OrderItem;
 
 class AdminDashboardController extends Controller
 {
     public function analytics(Request $request)
     {
-        // Yearly Sales Chart
-        $yearlySalesChart = new LaravelChart([
-            'chart_title' => 'Yearly Sales',
-            'report_type' => 'group_by_date',
-            'model' => 'App\Models\Order',
-            'group_by_field' => 'created_at',
-            'group_by_period' => 'year',
-            'aggregate_function' => 'sum',
-            'aggregate_field' => 'total',
-            'chart_type' => 'bar',
-            'conditions' => [
-                ['condition' => 'true', 'color' => '0,123,255', 'fill' => true],
-            ],
-        ]);
+        // Yearly Sales
+        $yearlyData = OrderItem::selectRaw('YEAR(created_at) as year, SUM(price * quantity) as total')
+            ->groupBy('year')
+            ->pluck('total', 'year');
 
-        // Sales Range Chart
-        $start = $request->start_date;
-        $end   = $request->end_date;
+        // Sales Range
+        $start = $request->start_date ?? now()->subDays(30)->toDateString();
+        $end   = $request->end_date ?? now()->toDateString();
 
-        $salesRangeChart = new LaravelChart([
-            'chart_title' => 'Sales in Date Range',
-            'report_type' => 'group_by_date',
-            'model' => 'App\Models\Order',
-            'conditions' => [
-                ['field' => 'created_at', 'operator' => '>=', 'value' => $start, 'color' => '255,99,132', 'fill' => true],
-                ['field' => 'created_at', 'operator' => '<=', 'value' => $end, 'color' => '255,99,132', 'fill' => true],
-            ],
-            'group_by_field' => 'created_at',
-            'group_by_period' => 'day',
-            'aggregate_function' => 'sum',
-            'aggregate_field' => 'total',
-            'chart_type' => 'bar',
-            
-        ]);
+        $rangeData = OrderItem::whereBetween('created_at', [$start, $end])
+            ->selectRaw('DATE(created_at) as date, SUM(price * quantity) as total')
+            ->groupBy('date')
+            ->pluck('total', 'date');
 
-        // Product Contribution Pie Chart
-        $productSalesChart = new LaravelChart([
-            'chart_title' => 'Product Contribution',
-            'report_type' => 'group_by_relationship',
-            'model' => 'App\Models\OrderItem',
-            'relationship_name' => 'product',
-            'group_by_field' => 'name',
-            'aggregate_function' => 'sum',
-            'aggregate_field' => 'price',
-            'chart_type' => 'pie',
-            'conditions' => [
-                ['condition' => 'true', 'color' => '54,162,235', 'fill' => true],
-            ],
-        ]);
+        // Product Contribution
+        $productData = OrderItem::with('product')
+            ->selectRaw('product_id, SUM(price * quantity) as total')
+            ->groupBy('product_id')
+            ->get()
+            ->pluck('total', 'product.name');
 
-        return view('admin.reports.analytics', compact(
-            'yearlySalesChart',
-            'salesRangeChart',
-            'productSalesChart'
-        ));
+        return view('admin.reports.analytics', compact('yearlyData', 'rangeData', 'productData', 'start', 'end'));
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

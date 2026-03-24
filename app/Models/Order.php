@@ -26,4 +26,11 @@ class Order extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function recalcTotal()
+    {
+        $this->total = $this->items->sum(fn($item) => $item->price * $item->quantity);
+        $this->save();
+    }
+
 }
