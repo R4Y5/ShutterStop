@@ -83,8 +83,9 @@ foreach ($cart as $productId => $item) {
         $order->save();
 
         // Send email with PDF receipt attached
-        Mail::to($order->user->email)->send(new OrderStatusUpdatedMail($order));
+        Mail::to($order->email)->send(new OrderStatusUpdatedMail($order));
 
-        return back()->with('success', 'Order status updated and email sent.');
+        return redirect()->route('admin.orders.index')
+                         ->with('success', 'Order status updated and email sent.');
     }
 }

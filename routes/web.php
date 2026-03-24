@@ -13,6 +13,8 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ReviewController;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderStatusUpdatedMail;
 
 // Default route → login page
 Route::get('/', function () {
@@ -80,6 +82,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
     Route::get('/orders/{order}/edit', [AdminOrderController::class, 'edit'])->name('admin.orders.edit');
     Route::put('/orders/{order}', [AdminOrderController::class, 'update'])->name('admin.orders.update');
+    Route::put('/admin/orders/{order}/status', [CheckoutController::class, 'updateStatus'])->name('admin.orders.updateStatus');
     Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])->name('admin.orders.destroy');
 
     // Admin review listing
@@ -133,5 +136,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/account/reviews', [ReviewController::class, 'myReviews'])->name('account.reviews');
     Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+});
 
-    });
+Route::get('/test-mail', function () {
+    $order = \App\Models\Order::first();
+    Mail::to('test@example.com')->send(new OrderStatusUpdatedMail($order));
+    return 'Mail sent!';
+});
+

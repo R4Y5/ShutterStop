@@ -5,12 +5,10 @@
     <title>Order Status Updated</title>
 </head>
 <body>
-    <h2>Hello {{ $order->user->first_name }},</h2>
-
-    <p>Your order #{{ $order->id }} status has been updated to: <strong>{{ $order->status }}</strong>.</p>
-
-    <p>We’ve attached your updated receipt in PDF format for your records.</p>
-
-    <p>Thank you for shopping with us!</p>
+    <h2>Hello {{ $order->first_name }},</h2>
+    <p>Your order #{{ $order->id }} status has been updated to 
+       <strong>{{ $order->status }}</strong>.</p>
+    <p>A PDF receipt is attached for your records.</p>
+    <p>Thank you for shopping with ShutterStop!</p>
 </body>
 </html>

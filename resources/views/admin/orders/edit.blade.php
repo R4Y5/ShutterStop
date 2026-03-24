@@ -4,7 +4,8 @@
 <div class="container">
     <h2 class="mb-4">Edit Order #{{ $order->id }}</h2>
 
-    <form action="{{ route('admin.orders.update', $order) }}" method="POST">
+    <!-- Update Order Status Form -->
+    <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST">
         @csrf
         @method('PUT')
 
