@@ -47,7 +47,7 @@
             </form>
         @else
             {{-- New Review Form --}}
-            <a href="{{ route('products.review.form', $item->product->id) }}?order_id={{ $order->id }}" 
+            <a href="{{ route('products.review.form', $item->product->id) }}?order_id={{ $order->id }}"
            class="btn btn-success btn-sm">
             Write Review
         </a>
