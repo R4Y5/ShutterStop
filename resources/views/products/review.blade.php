@@ -19,7 +19,7 @@
             <label for="rating" class="form-label">Rating</label>
             <select name="rating" id="rating" class="form-select" required>
                 @for($i = 1; $i <= 5; $i++)
-                    <option value="{{ $i }}" 
+                    <option value="{{ $i }}"
                         {{ isset($review) && $review->rating == $i ? 'selected' : '' }}>
                         {{ $i }}
                     </option>
