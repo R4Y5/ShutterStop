@@ -71,7 +71,7 @@ class ShopController extends Controller
     // Double‑check that this order belongs to the logged‑in user and includes the product
     $order = \App\Models\Order::where('id', $request->order_id)
         ->where('user_id', auth()->id())
-        ->where('status', 'completed')
+        ->where('LOWER(status) = ?', ['completed'])
         ->whereHas('items', fn($q) => $q->where('product_id', $product->id))
         ->firstOrFail();
 

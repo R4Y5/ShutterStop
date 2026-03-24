@@ -13,6 +13,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ProductController extends Controller
 {
+    // Customer-facing shop listing
     public function index(Request $request)
     {
         $query = Product::query();
@@ -38,6 +39,12 @@ class ProductController extends Controller
 
         $products = $query->paginate(12);
         return view('products.index', compact('products'));
+    }
+
+    // Admin-facing index
+    public function adminIndex()
+    {
+        return view('products.index'); // reuse your existing Blade file
     }
 
     public function create()
@@ -118,12 +125,9 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully!');
     }
 
-    /**
-     * Soft delete product (keep images).
-     */
     public function destroy(Product $product)
     {
-        $product->delete(); // only soft delete, keep images
+        $product->delete();
         return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully!');
     }
 
@@ -134,9 +138,6 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Product restored successfully!');
     }
 
-    /**
-     * Permanently delete product and its images.
-     */
     public function forceDestroy($id)
     {
         $product = Product::withTrashed()->findOrFail($id);
@@ -163,7 +164,7 @@ class ProductController extends Controller
 
     public function getData(Request $request)
     {
-        $query = Product::with('category')->select('products.*');
+        $query = Product::with(['category','photos'])->select('products.*');
 
         if ($request->category_id) {
             $query->where('category_id', $request->category_id);
@@ -182,9 +183,9 @@ class ProductController extends Controller
             })
             ->addColumn('category', fn($product) => $product->category ? $product->category->name : 'Uncategorized')
             ->addColumn('actions', fn($product) => view('products.partials.actions', compact('product'))->render())
-            ->editColumn('created_at', fn($product) => $product->created_at->format('Y-m-d'))
+            ->editColumn('created_at', fn($product) => $product->created_at ? $product->created_at->format('Y-m-d') : '')
             ->rawColumns(['photo','actions'])
-            ->make(true);
+            ->toJson();
     }
 
     public function import(Request $request)
@@ -215,7 +216,7 @@ class ProductController extends Controller
 
     public function getTrashedData(Request $request)
     {
-        $query = Product::onlyTrashed()->with('category')->select('products.*');
+        $query = Product::onlyTrashed()->with(['category','photos'])->select('products.*');
 
         if ($request->category_id) {
             $query->where('category_id', $request->category_id);
@@ -234,8 +235,8 @@ class ProductController extends Controller
             })
             ->addColumn('category', fn($product) => $product->category ? $product->category->name : 'Uncategorized')
             ->addColumn('actions', fn($product) => view('products.partials.actions', compact('product'))->render())
-            ->editColumn('deleted_at', fn($product) => $product->deleted_at->format('Y-m-d'))
+            ->editColumn('deleted_at', fn($product) => $product->deleted_at ? $product->deleted_at->format('Y-m-d') : '')
             ->rawColumns(['photo','actions'])
-            ->make(true);
+            ->toJson();
     }
 }

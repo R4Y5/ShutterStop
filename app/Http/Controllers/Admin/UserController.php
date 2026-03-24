@@ -57,34 +57,50 @@ class UserController extends Controller
     }
 
     public function update(Request $request, User $user)
-    {
-        $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255',
-            'email'      => 'required|email|unique:users,email,'.$user->id,
-            'contact_no' => 'nullable|string|max:20',
-            'address'    => 'nullable|string|max:255',
-            'role'       => 'required|string',
-            'photo'      => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-        ]);
+{
+    $request->validate([
+        'first_name' => 'nullable|string|max:255',
+        'last_name'  => 'nullable|string|max:255',
+        'email'      => 'required|email|unique:users,email,'.$user->id,
+        'contact_no' => 'nullable|string|max:20',
+        'address'    => 'nullable|string|max:255',
+        'role'       => 'required|string',
+        'photo'      => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+    ]);
 
-        $data = $request->only(['first_name','last_name','email','contact_no','address']);
-
-        // Handle photo upload
-        if ($request->hasFile('photo')) {
-            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
-                Storage::disk('public')->delete($user->photo);
-            }
-            $data['photo'] = $request->file('photo')->store('photos', 'public');
-        }
-
-        $user->update($data);
-
-        // Update role
-        $user->syncRoles([$request->role]);
-
-        return redirect()->route('admin.users.index')->with('success', 'User updated successfully!');
+    // Only update fields if they were actually filled in
+    if ($request->filled('first_name')) {
+        $user->first_name = $request->first_name;
     }
+
+    if ($request->filled('last_name')) {
+        $user->last_name = $request->last_name;
+    }
+
+    if ($request->filled('contact_no')) {
+        $user->contact_no = $request->contact_no;
+    }
+
+    if ($request->filled('address')) {
+        $user->address = $request->address;
+    }
+
+    // Handle photo upload
+    if ($request->hasFile('photo')) {
+        if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+            Storage::disk('public')->delete($user->photo);
+        }
+        $user->photo = $request->file('photo')->store('photos', 'public');
+    }
+
+    // Update role
+    $user->syncRoles([$request->role]);
+
+    $user->save();
+
+    return redirect()->route('admin.users.index')->with('success', 'User updated successfully!');
+}
+
 
     public function destroy(User $user)
     {

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="container"> {{-- full width --}}
     <h1 class="mb-4">Manage Users</h1>
 
     @if(session('success'))
@@ -31,29 +31,32 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
 $(function() {
     $('#users-table').DataTable({
-    processing: true,
-    serverSide: true,
-    ajax: '{{ route("admin.users.data") }}',
-    columns: [
-        { data: 'photo', name: 'photo', orderable: false, searchable: false },
-        { data: 'id', name: 'id' },
-        { data: 'first_name', name: 'first_name' },
-        { data: 'last_name', name: 'last_name' },
-        { data: 'email', name: 'email' },
-        { data: 'role', name: 'role', orderable: false },
-        { data: 'is_active', name: 'is_active', orderable: false },
-        { data: 'created_at', name: 'created_at' },
-        { data: 'actions', name: 'actions', orderable: false, searchable: false }
-    ],
-    pageLength: 10,
-    order: [[2, 'asc']], // default sort by First Name
-    responsive: true
-});
-
+        processing: true,
+        serverSide: true,     // allow horizontal scroll
+        pageLength: 10,      // show more rows per page
+        ajax: '{{ route("admin.users.data") }}',
+        columns: [
+            { data: 'photo', name: 'photo', orderable: false, searchable: false },
+            { data: 'id', name: 'id' },
+            { data: 'first_name', name: 'first_name' },
+            { data: 'last_name', name: 'last_name' },
+            { data: 'email', name: 'email' },
+            { data: 'role', name: 'role', orderable: false },
+            { data: 'is_active', name: 'is_active', orderable: false },
+            { data: 'created_at', name: 'created_at',
+              render: function(data) {
+                  return data ? data.split('T')[0] : '';
+              }
+            },
+            { data: 'actions', name: 'actions', orderable: false, searchable: false }
+        ],
+        order: [[2, 'asc']], // default sort by First Name
+        responsive: true
+    });
 });
 </script>
-@endsection
+@endpush

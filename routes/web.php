@@ -35,17 +35,13 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
-    // Products management
-    Route::resource('products', ProductController::class)
-        ->except(['show'])
-        ->names([
-            'index'   => 'admin.products.index',
-            'create'  => 'admin.products.create',
-            'store'   => 'admin.products.store',
-            'edit'    => 'admin.products.edit',
-            'update'  => 'admin.products.update',
-            'destroy' => 'admin.products.destroy',
-        ]);
+    // Products management (explicit routes, pointing index to adminIndex)
+    Route::get('/products', [ProductController::class, 'adminIndex'])->name('admin.products.index');
+    Route::get('/products/create', [ProductController::class, 'create'])->name('admin.products.create');
+    Route::post('/products', [ProductController::class, 'store'])->name('admin.products.store');
+    Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
+    Route::put('/products/{product}', [ProductController::class, 'update'])->name('admin.products.update');
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
 
     Route::get('/products/data', [ProductController::class, 'getData'])->name('admin.products.data');
     Route::get('/products/trashed/data', [ProductController::class, 'getTrashedData'])->name('admin.products.trashed.data');
@@ -84,6 +80,10 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
 
     // Admin review listing
     Route::get('/reviews/data', [ReviewController::class, 'getData'])->name('admin.reviews.data');
+    Route::get('/reviews', function () {
+        return view('admin.reviews.index');
+    })->name('admin.reviews.index');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('admin.reviews.destroy');
 });
 
 // --------------------
@@ -115,13 +115,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
 
     // Reviews (Customer)
-    Route::post('/products/{product}/review', [ShopController::class, 'review'])
-        ->name('products.review');
-
-    Route::put('/reviews/{review}', [ShopController::class, 'updateReview'])
-        ->name('reviews.update');
-
-    // My Reviews page
-    Route::get('/account/reviews', [ReviewController::class, 'myReviews'])
-        ->name('account.reviews');
+    Route::get('/products/{product}/review', [ReviewController::class, 'form'])->name('products.review.form');
+    Route::post('/products/{product}/review', [ReviewController::class, 'store'])->name('products.review');
+    Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.update.form');
+    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+    Route::get('/account/reviews', [ReviewController::class, 'myReviews'])->name('account.reviews');
 });

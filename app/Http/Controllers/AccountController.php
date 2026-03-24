@@ -22,30 +22,48 @@ class AccountController extends Controller
     }
 
     public function update(Request $request)
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255',
-            'contact_no' => 'nullable|string|max:20',
-            'address'    => 'nullable|string|max:255',
-            'photo'      => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-        ]);
+    $request->validate([
+        'first_name' => 'nullable|string|max:255',
+        'last_name'  => 'nullable|string|max:255',
+        'contact_no' => 'nullable|string|max:20',
+        'address'    => 'nullable|string|max:255',
+        'photo'      => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+    ]);
 
-        $data = $request->only(['first_name', 'last_name', 'contact_no', 'address']);
-
-        if ($request->hasFile('photo')) {
-            if ($user->photo) {
-                Storage::disk('public')->delete($user->photo);
-            }
-            $data['photo'] = $request->file('photo')->store('photos', 'public');
-        }
-
-        $user->update($data);
-
-        return redirect()->route('account.edit')->with('success', 'Your account information has been updated!');
+    // Only update fields if they were actually filled in
+    if ($request->filled('first_name')) {
+        $user->first_name = $request->first_name;
     }
+
+    if ($request->filled('last_name')) {
+        $user->last_name = $request->last_name;
+    }
+
+    if ($request->filled('contact_no')) {
+        $user->contact_no = $request->contact_no;
+    }
+
+    if ($request->filled('address')) {
+        $user->address = $request->address;
+    }
+
+    // Handle photo upload
+    if ($request->hasFile('photo')) {
+        if ($user->photo) {
+            Storage::disk('public')->delete($user->photo);
+        }
+        $user->photo = $request->file('photo')->store('photos', 'public');
+    }
+
+    $user->save();
+
+    return redirect()->route('account.edit')
+                     ->with('success', 'Your account information has been updated!');
+}
+
 
     public function changePasswordForm()
     {

@@ -27,65 +27,36 @@
                     <td>{{ $order->created_at->format('M d, Y') }}</td>
                     <td>
                         @foreach($order->items as $item)
-                            <div class="mb-3">
-                                • {{ $item->product->name }} (x{{ $item->quantity }})
+    • {{ $item->product->name }} (x{{ $item->quantity }})
 
-                                @php
-                                    $review = $item->product->reviews()
-                                        ->where('user_id', auth()->id())
-                                        ->where('order_id', $order->id)
-                                        ->first();
-                                @endphp
+    @php
+        $review = $item->product->reviews()
+            ->where('user_id', auth()->id())
+            ->where('order_id', $order->id)
+            ->first();
+    @endphp
 
-                                @if($review)
-                                    {{-- Edit Review Form --}}
-                                    <form action="{{ route('reviews.update', $review->id) }}" method="POST" class="mt-2">
-                                        @csrf
-                                        @method('PUT')
+    @if(strtolower($order->status) === 'completed')
+        @if($review)
+            {{-- Edit Review Form --}}
+            <form action="{{ route('reviews.update', $review->id) }}" method="POST" class="mt-2">
+                @csrf
+                @method('PUT')
+                <!-- rating + comment fields -->
+                <button type="submit" class="btn btn-warning btn-sm">Update Review</button>
+            </form>
+        @else
+            {{-- New Review Form --}}
+            <a href="{{ route('products.review.form', $item->product->id) }}?order_id={{ $order->id }}" 
+           class="btn btn-success btn-sm">
+            Write Review
+        </a>
+        @endif
+    @else
+        <p class="text-muted">Reviews available only after order is completed.</p>
+    @endif
+@endforeach
 
-                                        <div class="mb-2">
-                                            <label>Rating</label>
-                                            <select name="rating" class="form-select">
-                                                @for($i=1;$i<=5;$i++)
-                                                    <option value="{{ $i }}" {{ $review->rating == $i ? 'selected' : '' }}>
-                                                        {{ $i }}
-                                                    </option>
-                                                @endfor
-                                            </select>
-                                        </div>
-
-                                        <div class="mb-2">
-                                            <label>Comment</label>
-                                            <textarea name="comment" class="form-control">{{ $review->comment }}</textarea>
-                                        </div>
-
-                                        <button type="submit" class="btn btn-warning btn-sm">Update Review</button>
-                                    </form>
-                                @else
-                                    {{-- New Review Form --}}
-                                    <form action="{{ route('products.review', $item->product->id) }}" method="POST" class="mt-2">
-                                        @csrf
-                                        <input type="hidden" name="order_id" value="{{ $order->id }}">
-
-                                        <div class="mb-2">
-                                            <label>Rating</label>
-                                            <select name="rating" class="form-select" required>
-                                                @for($i=1;$i<=5;$i++)
-                                                    <option value="{{ $i }}">{{ $i }}</option>
-                                                @endfor
-                                            </select>
-                                        </div>
-
-                                        <div class="mb-2">
-                                            <label>Comment</label>
-                                            <textarea name="comment" class="form-control"></textarea>
-                                        </div>
-
-                                        <button type="submit" class="btn btn-success btn-sm">Submit Review</button>
-                                    </form>
-                                @endif
-                            </div>
-                        @endforeach
                     </td>
                 </tr>
             @empty

@@ -87,7 +87,7 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
 let table = $('#products-table').DataTable({
     processing: true,
@@ -152,4 +152,4 @@ $('#resetFilters').click(function() {
    table.ajax.reload();
 });
 </script>
-@endsection
+@endpush

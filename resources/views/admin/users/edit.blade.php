@@ -2,13 +2,6 @@
 
 @section('content')
 <div class="container">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}">Admin</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}">Users</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Edit User</li>
-        </ol>
-    </nav>
     <h1>Edit User</h1>
 
     <form action="{{ route('admin.users.update', $user) }}" method="POST" enctype="multipart/form-data">
@@ -24,7 +17,7 @@
         <div class="form-group">
             <label for="first_name">First Name</label>
             <input type="text" name="first_name" id="first_name"
-                value="{{ old('first_name', $user->first_name) }}"
+                value=""
                 class="form-control">
         </div>
 
@@ -32,25 +25,25 @@
         <div class="form-group">
             <label for="last_name">Last Name</label>
             <input type="text" name="last_name" id="last_name"
-                value="{{ old('last_name', $user->last_name) }}"
+                value=""
                 class="form-control">
         </div>
 
         <div class="mb-3">
             <label>Contact No.</label>
-            <input type="text" name="contact_no" value="{{ old('contact_no', $user->contact_no) }}" class="form-control">
+            <input type="text" name="contact_no" value="" class="form-control">
         </div>
 
         <div class="mb-3">
             <label>Address</label>
-            <textarea name="address" class="form-control">{{ old('address', $user->address) }}</textarea>
+            <textarea name="address" class="form-control"></textarea>
         </div>
 
         <div class="mb-3">
             <label>Role</label>
             <select name="role" class="form-select">
-                <option value="customer" {{ $user->hasRole('customer') ? 'selected' : '' }}>Customer</option>
-                <option value="admin" {{ $user->hasRole('admin') ? 'selected' : '' }}>Admin</option>
+                <option value="customer">Customer</option>
+                <option value="admin">Admin</option>
             </select>
         </div>
 
