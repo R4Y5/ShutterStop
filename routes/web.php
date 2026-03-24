@@ -35,7 +35,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
-    // Products management (explicit routes, pointing index to adminIndex)
+    // Products management
     Route::get('/products', [ProductController::class, 'adminIndex'])->name('admin.products.index');
     Route::get('/products/create', [ProductController::class, 'create'])->name('admin.products.create');
     Route::post('/products', [ProductController::class, 'store'])->name('admin.products.store');
@@ -84,6 +84,11 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
         return view('admin.reviews.index');
     })->name('admin.reviews.index');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('admin.reviews.destroy');
+
+    // Reports / Analytics
+    Route::get('/reports', function () {
+        return view('admin.reports.index');
+    })->name('admin.reports.index');
 });
 
 // --------------------
@@ -117,7 +122,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Reviews (Customer)
     Route::get('/products/{product}/review', [ReviewController::class, 'form'])->name('products.review.form');
     Route::post('/products/{product}/review', [ReviewController::class, 'store'])->name('products.review');
-    Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('reviews.update.form');
-    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+
+    // Consistent naming for edit/update
+    Route::get('/account/reviews/{review}/edit', [ReviewController::class, 'edit'])->name('account.reviews.edit');
+    Route::put('/account/reviews/{review}', [ReviewController::class, 'update'])->name('account.reviews.update');
+
     Route::get('/account/reviews', [ReviewController::class, 'myReviews'])->name('account.reviews');
 });

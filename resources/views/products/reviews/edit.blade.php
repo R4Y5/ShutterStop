@@ -4,7 +4,7 @@
 <div class="container">
     <h2>Edit Review for {{ $review->product->name }}</h2>
 
-    <form action="{{ route('reviews.update', $review->id) }}" method="POST">
+    <form action="{{ route('account.reviews.update', $review->id) }}" method="POST">
         @csrf
         @method('PUT')
 

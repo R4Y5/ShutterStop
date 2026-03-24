@@ -46,7 +46,6 @@ class ReviewController extends Controller
             'order_id'=> 'required|integer',
         ]);
 
-        // Ensure user has completed order for this product
         $order = Order::where('id', $request->order_id)
             ->where('user_id', auth()->id())
             ->whereRaw('LOWER(status) = ?', ['completed'])
@@ -57,7 +56,6 @@ class ReviewController extends Controller
             return back()->with('error', 'You can only review products from completed orders.');
         }
 
-        // Create or update review
         Review::updateOrCreate(
             ['user_id' => auth()->id(), 'product_id' => $product->id, 'order_id' => $order->id],
             ['rating' => $request->rating, 'comment' => $request->comment]
@@ -72,18 +70,16 @@ class ReviewController extends Controller
      */
     public function edit(Review $review)
     {
-        // Ensure the review belongs to the logged-in user
         if ($review->user_id !== auth()->id()) {
             abort(403, 'Unauthorized action.');
         }
 
-        // Ensure the order is completed
         if (strtolower($review->order->status) !== 'completed') {
             return redirect()->route('account.orders')
                 ->with('error', 'You can only edit reviews from completed orders.');
         }
 
-        return view('reviews.edit', compact('review'));
+        return view('products.reviews.edit', compact('review'));
     }
 
     /**
@@ -150,5 +146,4 @@ class ReviewController extends Controller
 
         return response()->json(['success' => true]);
     }
-
 }

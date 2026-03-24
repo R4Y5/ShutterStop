@@ -27,36 +27,37 @@
                     <td>{{ $order->created_at->format('M d, Y') }}</td>
                     <td>
                         @foreach($order->items as $item)
-    • {{ $item->product->name }} (x{{ $item->quantity }})
+                            • {{ $item->product->name }} (x{{ $item->quantity }})
 
-    @php
-        $review = $item->product->reviews()
-            ->where('user_id', auth()->id())
-            ->where('order_id', $order->id)
-            ->first();
-    @endphp
+                            @php
+                                $review = $item->product->reviews()
+                                    ->where('user_id', auth()->id())
+                                    ->where('order_id', $order->id)
+                                    ->first();
+                            @endphp
 
-    @if(strtolower($order->status) === 'completed')
-        @if($review)
-            {{-- Edit Review Form --}}
-            <form action="{{ route('reviews.update', $review->id) }}" method="POST" class="mt-2">
-                @csrf
-                @method('PUT')
-                <!-- rating + comment fields -->
-                <button type="submit" class="btn btn-warning btn-sm">Update Review</button>
-            </form>
-        @else
-            {{-- New Review Form --}}
-            <a href="{{ route('products.review.form', $item->product->id) }}?order_id={{ $order->id }}" 
-           class="btn btn-success btn-sm">
-            Write Review
-        </a>
-        @endif
-    @else
-        <p class="text-muted">Reviews available only after order is completed.</p>
-    @endif
-@endforeach
-
+                            @if(strtolower($order->status) === 'completed')
+                                @if($review)
+                                    <!-- Link to edit review -->
+                                    <a href="{{ route('account.reviews.edit', $review->id) }}" 
+                                       class="btn btn-warning btn-sm mt-2">
+                                        Update Review
+                                    </a>
+                                @else
+                                    <!-- New Review Form -->
+                                    <form action="{{ route('products.review', $item->product->id) }}" 
+                                          method="POST" class="mt-2">
+                                        @csrf
+                                        <input type="hidden" name="order_id" value="{{ $order->id }}">
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            Submit Review
+                                        </button>
+                                    </form>
+                                @endif
+                            @else
+                                <p class="text-muted">Reviews available only after order is completed.</p>
+                            @endif
+                        @endforeach
                     </td>
                 </tr>
             @empty
