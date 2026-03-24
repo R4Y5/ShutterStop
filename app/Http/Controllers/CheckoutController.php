@@ -55,8 +55,6 @@ foreach ($cart as $productId => $item) {
         'product_id' => $productId,
         'quantity'   => $item['quantity'],
         'price'      => $item['price'],
-        'first_name' => $order->first_name,
-        'email'      => $order->email,
     ]);
 
     // Optionally reduce stock
