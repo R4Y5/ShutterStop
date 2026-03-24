@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
 
         // Admin user
         $admin = User::updateOrCreate(
-            ['email' => 'admin1@gmail.com'],
+            ['email' => 'admin@gmail.com'],
             [
                 'first_name'        => 'Admin',
                 'last_name'         => 'User',
@@ -29,7 +29,7 @@ class UserSeeder extends Seeder
                 'address'           => '123 Admin Street, Parañaque',
                 'email_verified_at' => Carbon::now(),
                 'password'          => Hash::make('admin123'),
-                'status'            => 'Active',
+                'is_active'         => true,
                 'role'              => 'admin', // optional if you keep column
                 'photo'             => null,
                 'remember_token'    => null,
@@ -48,7 +48,7 @@ class UserSeeder extends Seeder
                 'address'           => '456 Customer Avenue, Parañaque',
                 'email_verified_at' => Carbon::now(),
                 'password'          => Hash::make('customer123'),
-                'status'            => 'Active',
+                'is_active'         => true,
                 'role'              => 'customer', // optional if you keep column
                 'photo'             => null,
                 'remember_token'    => null,
