@@ -21,6 +21,7 @@ class OrderReceiptMail extends Mailable
     public function build()
     {
         return $this->subject('Your Order Receipt')
-                    ->view('emails.order_receipt');
+                    ->view('emails.order_receipt')
+                    ->with(['order' => $this->order]);
     }
 }

@@ -13,35 +13,59 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ProductController extends Controller
 {
-    // Customer-facing shop listing
+    // --------------------
+    // Customer-facing shop listing with filters
+        // --------------------
     public function index(Request $request)
-    {
-        $query = Product::query();
+{
+    $query = Product::query();
 
-        if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->min_price);
-        }
-        if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->max_price);
-        }
-        if ($request->filled('category')) {
-            $query->where('category_id', $request->category);
-        }
-        if ($request->filled('brand')) {
-            $query->where('brand_id', $request->brand);
-        }
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
-        }
-        if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
-        }
-
-        $products = $query->paginate(12);
-        return view('products.index', compact('products'));
+    // Keyword search (LIKE query)
+    if ($request->filled('search')) {
+        $query->where('name', 'LIKE', '%' . $request->search . '%');
     }
 
+    // Price filters
+    if ($request->filled('min_price')) {
+        $query->where('price', '>=', $request->min_price);
+    }
+    if ($request->filled('max_price')) {
+        $query->where('price', '<=', $request->max_price);
+    }
+
+    // Category filter
+    if ($request->filled('category')) {
+        $query->where('category_id', $request->category);
+    }
+
+    // Brand filter
+    if ($request->filled('brand')) {
+        $query->where('brand', $request->brand);
+    }
+
+    // Type filter (optional)
+    if ($request->filled('type')) {
+        $query->where('type', $request->type);
+    }
+
+    // Paginate and preserve filters in query string
+    $products = $query->paginate(12)->appends($request->query());
+
+    // Fetch categories and brands for dropdowns
+    $categories = Category::all();
+    $brands     = Product::whereNotNull('brand')
+                    ->select('brand')
+                    ->distinct()
+                    ->orderBy('brand')
+                    ->get();
+
+    // Render home.blade.php with filters + products
+    return view('home', compact('products', 'categories', 'brands'));
+}
+
+    // --------------------
     // Admin-facing index
+    // --------------------
     public function adminIndex()
     {
         return view('products.index'); // reuse your existing Blade file

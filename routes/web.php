@@ -27,6 +27,11 @@ Route::get('/home', [HomeController::class, 'index'])
     ->name('home')
     ->middleware(['auth', 'verified']);
 
+// Home (shop page with filters)
+Route::get('/home', [App\Http\Controllers\ProductController::class, 'index'])
+    ->name('shop.index')
+    ->middleware(['auth', 'verified']);
+
 // --------------------
 // ADMIN ROUTES
 // --------------------

@@ -40,6 +40,8 @@ class CheckoutController extends Controller
         // Create order
         $order = Order::create([
             'user_id' => $user->id,
+            'first_name' => $user->first_name,
+            'email' => $user->email,
             'status'  => 'Pending',
             'total'   => collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']),
             'remarks'    => $remarks,
@@ -62,6 +64,8 @@ class CheckoutController extends Controller
         session()->forget('cart');
         session()->forget('cart_remarks');
 
+        $order->load('items.product');
+        
         // Send receipt email (HTML view)
         Mail::to($user->email)->send(new OrderReceiptMail($order));
 

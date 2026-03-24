@@ -1,122 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    /* Global Neubrutalist touches */
-    .product-container { padding-top: 50px; padding-bottom: 50px; }
-
-    /* Alert Styling */
-    .alert-retro {
-        background-color: #000;
-        color: #fff;
-        border-radius: 0;
-        border: none;
-        font-weight: 900;
-        text-transform: uppercase;
-        box-shadow: 6px 6px 0px 0px #ccc;
-        margin-bottom: 30px;
-    }
-
-    /* Photo Section */
-    .main-photo-wrapper {
-        background-color: #fff;
-        border: 4px solid #000;
-        box-shadow: 12px 12px 0px 0px #000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        margin-bottom: 20px;
-    }
-
-    .thumbnail-retro {
-        border: 2px solid #000 !important;
-        border-radius: 0 !important;
-        box-shadow: 4px 4px 0px 0px #000;
-        transition: transform 0.1s;
-        padding: 0;
-    }
-
-    .thumbnail-retro:hover {
-        transform: translate(2px, 2px);
-        box-shadow: 0px 0px 0px 0px #000;
-    }
-
-    /* Details Section */
-    .product-title {
-        font-family: 'Inter', sans-serif;
-        font-weight: 900;
-        text-transform: uppercase;
-        font-size: 2.5rem;
-        line-height: 1;
-        margin-bottom: 15px;
-    }
-
-    .price-tag {
-        display: inline-block;
-        background-color: #ffff00; /* Neon Yellow */
-        color: #000;
-        padding: 10px 20px;
-        font-weight: 900;
-        font-size: 1.5rem;
-        border: 3px solid #000;
-        box-shadow: 6px 6px 0px 0px #000;
-        margin-bottom: 25px;
-    }
-
-    .info-box {
-        background: #f3f3f3;
-        border: 2px solid #000;
-        padding: 20px;
-        margin-bottom: 25px;
-    }
-
-    /* Form Controls */
-    .form-control-retro {
-        border: 2px solid #000 !important;
-        border-radius: 0 !important;
-        font-weight: 900;
-        padding: 10px;
-    }
-
-    .btn-add-cart {
-        background-color: #00ff00 !important; /* Neon Green */
-        color: #000 !important;
-        border: 3px solid #000 !important;
-        border-radius: 0 !important;
-        font-weight: 900;
-        text-transform: uppercase;
-        padding: 15px 30px;
-        box-shadow: 6px 6px 0px 0px #000;
-        transition: all 0.2s;
-    }
-
-    .btn-add-cart:hover {
-        transform: translate(3px, 3px);
-        box-shadow: 0px 0px 0px 0px #000;
-    }
-
-    /* Reviews */
-    .review-card {
-        background: #fff;
-        border: 3px solid #000;
-        box-shadow: 8px 8px 0px 0px #000;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
-    .review-header {
-        border-bottom: 2px solid #000;
-        padding-bottom: 10px;
-        margin-bottom: 15px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .star-icon { font-size: 1.2rem; }
-</style>
-
 <div class="container product-container">
     @if(session('success'))
         <div class="alert alert-retro text-center">
@@ -124,25 +8,148 @@
         </div>
     @endif
 
+    <style>
+        /* Global Neubrutalist touches */
+        .product-container { padding-top: 50px; padding-bottom: 50px; }
+
+        /* Alert Styling */
+        .alert-retro {
+            background-color: #000;
+            color: #fff;
+            border-radius: 0;
+            border: none;
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: 6px 6px 0px 0px #ccc;
+            margin-bottom: 30px;
+        }
+
+        /* Photo Section */
+        .main-photo-wrapper {
+            background-color: #fff;
+            border: 4px solid #000;
+            box-shadow: 12px 12px 0px 0px #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 20px;
+            height: 500px;
+        }
+
+        .main-photo-wrapper img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .thumbnail-retro {
+            border: 2px solid #000 !important;
+            border-radius: 0 !important;
+            box-shadow: 4px 4px 0px 0px #000;
+            transition: transform 0.1s;
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .thumbnail-retro:hover {
+            transform: translate(2px, 2px);
+            box-shadow: none;
+        }
+
+        /* Details Section */
+        .product-title {
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 2.5rem;
+            line-height: 1;
+            margin-bottom: 15px;
+        }
+
+        .price-tag {
+            display: inline-block;
+            background-color: #ffff00;
+            color: #000;
+            padding: 10px 20px;
+            font-weight: 900;
+            font-size: 1.5rem;
+            border: 3px solid #000;
+            box-shadow: 6px 6px 0px 0px #000;
+            margin-bottom: 25px;
+        }
+
+        .info-box {
+            background: #f3f3f3;
+            border: 2px solid #000;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        /* Form Controls */
+        .form-control-retro {
+            border: 2px solid #000 !important;
+            border-radius: 0 !important;
+            font-weight: 900;
+            padding: 10px;
+        }
+
+        .btn-add-cart {
+            background-color: #00ff00 !important;
+            color: #000 !important;
+            border: 3px solid #000 !important;
+            border-radius: 0 !important;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 15px 30px;
+            box-shadow: 6px 6px 0px 0px #000;
+            transition: all 0.2s;
+        }
+
+        .btn-add-cart:hover {
+            transform: translate(3px, 3px);
+            box-shadow: none;
+        }
+
+        /* Reviews */
+        .review-card {
+            background: #fff;
+            border: 3px solid #000;
+            box-shadow: 8px 8px 0px 0px #000;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .review-header {
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .star-icon { font-size: 1.2rem; }
+    </style>
+
     <div class="row g-5">
-        <div class="col-md-6">
-            <div class="main-photo-wrapper" style="height: 500px; width: 100%;">
+        <!-- Main Photo -->
+        <div class="col-md-6 text-center">
+            <div class="main-photo-wrapper">
                 <img id="mainPhoto"
                      src="{{ $product->photo ? asset('storage/' . $product->photo) : asset('images/default.png') }}"
-                     alt="{{ $product->name }}"
-                     style="max-width:90%; max-height:90%; object-fit:contain;">
+                     alt="{{ $product->name }}">
             </div>
 
             @if($product->photos->count() > 1)
                 <div class="d-flex flex-wrap justify-content-start mt-3">
                     @foreach($product->photos as $photo)
-                        <div class="m-2">
-                            <img src="{{ asset('storage/' . $photo->path) }}"
-                                 class="thumbnail-retro"
-                                 alt="{{ $product->name }}"
-                                 style="width:80px; height:80px; object-fit:cover; cursor:pointer;"
-                                 onclick="switchPhoto('{{ asset('storage/' . $photo->path) }}')">
-                        </div>
+                        <img src="{{ asset('storage/' . $photo->path) }}"
+                             class="thumbnail-retro m-2"
+                             alt="{{ $product->name }}"
+                             onclick="switchPhoto('{{ asset('storage/' . $photo->path) }}')">
                     @endforeach
                 </div>
             @endif
@@ -150,7 +157,6 @@
 
         <div class="col-md-6">
             <h2 class="product-title">{{ $product->name }}</h2>
-
             <div class="price-tag">
                 ₱{{ number_format($product->price, 2) }}
             </div>
@@ -167,9 +173,10 @@
                 <div class="d-flex align-items-end">
                     <div class="me-3">
                         <label for="quantity" class="fw-black text-uppercase small d-block mb-1">Quantity</label>
-                        <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ $product->stock }}" class="form-control form-control-retro" style="width:120px;">
+                        <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ $product->stock }}"
+                               class="form-control-retro" style="width:120px;">
                     </div>
-                    <button type="submit" class="btn btn-add-cart">
+                    <button type="submit" class="btn-add-cart">
                         Add to Bag.
                     </button>
                 </div>
@@ -177,6 +184,7 @@
         </div>
     </div>
 
+    <!-- Reviews Section -->
     <div class="mt-5 pt-5">
         <h4 class="fw-black text-uppercase mb-4" style="letter-spacing: 2px; border-left: 8px solid #000; padding-left: 15px;">
             Customer Feedback

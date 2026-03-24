@@ -1,114 +1,114 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    /* Page Title */
-    .hero-text h2 {
-        font-family: 'Inter', sans-serif;
-        font-weight: 900;
-        text-transform: uppercase;
-        font-size: 2.5rem;
-        margin-bottom: 30px;
-    }
-
-    /* Table Container */
-    .cart-wrapper {
-        background: #fff;
-        border: 3px solid #000;
-        box-shadow: 10px 10px 0px 0px #000;
-        padding: 20px;
-        margin-bottom: 40px;
-    }
-
-    .table-retro {
-        border-collapse: collapse !important;
-    }
-
-    .table-retro thead th {
-        background-color: #000 !important;
-        color: #fff !important;
-        text-transform: uppercase;
-        font-weight: 900;
-        border: 1px solid #000;
-        padding: 15px;
-    }
-
-    .table-retro tbody td {
-        border: 1px solid #000 !important;
-        font-weight: bold;
-        padding: 15px;
-    }
-
-    /* Inputs */
-    .form-control-retro {
-        border: 2px solid #000 !important;
-        border-radius: 0 !important;
-        font-weight: bold;
-    }
-
-    .form-control-retro:focus {
-        box-shadow: 4px 4px 0px 0px #000;
-        outline: none;
-    }
-
-    /* Custom Checkbox */
-    input[type="checkbox"] {
-        width: 20px;
-        height: 20px;
-        accent-color: #ff0000;
-        cursor: pointer;
-        border: 2px solid #000;
-    }
-
-    /* Total Banner */
-    .total-banner {
-        background-color: #ffff00; /* Neon Yellow */
-        border: 3px solid #000;
-        padding: 20px;
-        font-weight: 900;
-        text-transform: uppercase;
-        box-shadow: 6px 6px 0px 0px #000;
-        margin-bottom: 25px;
-    }
-
-    /* Buttons */
-    .btn-retro {
-        border: 2px solid #000;
-        border-radius: 0;
-        font-weight: 900;
-        text-transform: uppercase;
-        padding: 12px 25px;
-        transition: all 0.2s;
-        box-shadow: 4px 4px 0px 0px #000;
-        display: inline-block;
-        text-decoration: none;
-        color: #000;
-    }
-
-    .btn-retro:hover {
-        transform: translate(2px, 2px);
-        box-shadow: 0px 0px 0px 0px #000;
-        color: #000;
-    }
-
-    .btn-update { background-color: #ffa500; }
-    .btn-add { background-color: #fff; }
-    .btn-place { background-color: #00ff00; width: 100%; text-align: center; }
-
-    .empty-state {
-        border: 4px dashed #000;
-        padding: 50px;
-        text-align: center;
-        background: #fff;
-        font-weight: 900;
-        text-transform: uppercase;
-    }
-</style>
-
 <div class="container py-5">
     <div class="hero-text">
         <h2>Shopping Cart.</h2>
     </div>
+
+    <style>
+        /* Page Title */
+        .hero-text h2 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+
+        /* Table Container */
+        .cart-wrapper {
+            background: #fff;
+            border: 3px solid #000;
+            box-shadow: 10px 10px 0px 0px #000;
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+
+        .table-retro {
+            border-collapse: collapse !important;
+        }
+
+        .table-retro thead th {
+            background-color: #000 !important;
+            color: #fff !important;
+            text-transform: uppercase;
+            font-weight: 900;
+            border: 1px solid #000;
+            padding: 15px;
+        }
+
+        .table-retro tbody td {
+            border: 1px solid #000 !important;
+            font-weight: bold;
+            padding: 15px;
+        }
+
+        /* Inputs */
+        .form-control-retro {
+            border: 2px solid #000 !important;
+            border-radius: 0 !important;
+            font-weight: bold;
+        }
+
+        .form-control-retro:focus {
+            box-shadow: 4px 4px 0px 0px #000;
+            outline: none;
+        }
+
+        /* Custom Checkbox */
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #ff0000;
+            cursor: pointer;
+            border: 2px solid #000;
+        }
+
+        /* Total Banner */
+        .total-banner {
+            background-color: #ffff00; /* Neon Yellow */
+            border: 3px solid #000;
+            padding: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: 6px 6px 0px 0px #000;
+            margin-bottom: 25px;
+        }
+
+        /* Buttons */
+        .btn-retro {
+            border: 2px solid #000;
+            border-radius: 0;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 12px 25px;
+            transition: all 0.2s;
+            box-shadow: 4px 4px 0px 0px #000;
+            display: inline-block;
+            text-decoration: none;
+            color: #000;
+        }
+
+        .btn-retro:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px 0px #000;
+            color: #000;
+        }
+
+        .btn-update { background-color: #ffa500; }
+        .btn-add { background-color: #fff; }
+        .btn-place { background-color: #00ff00; width: 100%; text-align: center; }
+
+        .empty-state {
+            border: 4px dashed #000;
+            padding: 50px;
+            text-align: center;
+            background: #fff;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+    </style>
 
     @if($cartItems->count())
         <div class="cart-wrapper">

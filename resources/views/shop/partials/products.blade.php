@@ -78,14 +78,16 @@
     }
 </style>
 
-<div class="row">
+<div class="row g-4">
     @forelse($products as $product)
-        <div class="col-md-3 mb-5">
-            <div class="card card-retro h-100">
+        <div class="col-md-3 mb-4">
+            <div class="card-retro h-100">
+                <!-- Product Image -->
                 <img src="{{ $product->photo ? asset('storage/' . $product->photo) : asset('images/default.png') }}"
                      class="card-img-retro w-100"
                      alt="{{ $product->name }}">
 
+                <!-- Product Details -->
                 <div class="card-body d-flex flex-column p-3">
                     <h5 class="card-title-retro">{{ $product->name }}</h5>
 
@@ -93,10 +95,12 @@
                         ₱{{ number_format($product->price, 2) }}
                     </div>
 
+                    <!-- View Details -->
                     <a href="{{ route('products.show', $product->id) }}" class="btn-retro-sm btn-view">
                         View Details
                     </a>
 
+                    <!-- Add to Cart -->
                     <form action="{{ route('cart.add', $product->id) }}" method="POST" class="mt-auto">
                         @csrf
                         <button type="submit" class="btn-retro-sm btn-add-cart w-100">
@@ -109,12 +113,13 @@
     @empty
         <div class="col-12">
             <div class="empty-state-retro">
-                <p class="mb-0">No products available in this category.</p>
+                No products available in this category.
             </div>
         </div>
     @endforelse
 </div>
 
+<!-- Pagination -->
 <div class="mt-5 d-flex justify-content-center">
     {{ $products->links() }}
 </div>
