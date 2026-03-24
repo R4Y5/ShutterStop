@@ -98,5 +98,5 @@ function deletePhoto(photoId) {
         .catch(() => alert('Error deleting photo.'));
     }
 }
-</script>
+</script>`
 @endsection
