@@ -159,7 +159,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="{{ url('/shop') }}" class="btn-retro btn-add">Add More Items</a>
+                    <a href="{{ url('/home') }}" class="btn-retro btn-add">Add More Items</a>
                     <button type="submit" class="btn-retro btn-update">Update Cart</button>
                 </div>
             </form>
@@ -184,7 +184,7 @@
     @else
         <div class="empty-state">
             <h4 class="mb-4">Your cart is empty.</h4>
-            <a href="{{ url('/shop') }}" class="btn-retro btn-add">Go to Shop</a>
+            <a href="{{ url('/home') }}" class="btn-retro btn-add">Go to Shop</a>
         </div>
     @endif
 </div>
