@@ -112,11 +112,11 @@
                 <label class="filter-label">Brand</label>
                 <select name="brand" class="form-select">
                     <option value="">All Brands</option>
-                    @foreach($brands as $brand)
-                        <option value="{{ $brand->id }}" {{ request('brand') == $brand->id ? 'selected' : '' }}>
-                            {{ $brand->name }}
-                        </option>
-                    @endforeach
+            @foreach($brands as $brand)
+                <option value="{{ $brand }}" {{ request('brand') == $brand ? 'selected' : '' }}>
+                    {{ $brand }}
+                </option>
+            @endforeach
                 </select>
             </div>
 
