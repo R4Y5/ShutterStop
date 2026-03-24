@@ -7,29 +7,19 @@ use App\Models\Product;
 
 class HomeController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('auth');
     }
 
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
     public function index()
     {
-        // If admin - show admin dashboard
+        // 1. If admin - Redirect to the admin route defined in web.php
         if (auth()->user()->hasRole('admin')) {
-            return view('admin.dashboard');
+            return redirect()->route('admin.dashboard');
         }
 
-        // If customer - show home page with products
+        // 2. If customer - Show products
         $products = Product::paginate(12);
 
         return view('home', compact('products'));
