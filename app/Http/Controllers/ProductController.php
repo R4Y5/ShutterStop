@@ -15,60 +15,47 @@ class ProductController extends Controller
 {
     // --------------------
     // Customer-facing shop listing with filters
-        // --------------------
+    // --------------------
     public function index(Request $request)
-{
-    $query = Product::query();
+    {
+        $query = Product::query();
 
-    // Keyword search (LIKE query)
-    if ($request->filled('search')) {
-        $query->where('name', 'LIKE', '%' . $request->search . '%');
+        if ($request->filled('search')) {
+            $query->where('name', 'LIKE', '%' . $request->search . '%');
+        }
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+        if ($request->filled('brand')) {
+            $query->where('brand', $request->brand);
+        }
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        $products   = $query->paginate(12)->appends($request->query());
+        $categories = Category::all();
+        $brands     = Product::whereNotNull('brand')
+                        ->select('brand')
+                        ->distinct()
+                        ->orderBy('brand')
+                        ->get();
+
+        return view('home', compact('products', 'categories', 'brands'));
     }
-
-    // Price filters
-    if ($request->filled('min_price')) {
-        $query->where('price', '>=', $request->min_price);
-    }
-    if ($request->filled('max_price')) {
-        $query->where('price', '<=', $request->max_price);
-    }
-
-    // Category filter
-    if ($request->filled('category')) {
-        $query->where('category_id', $request->category);
-    }
-
-    // Brand filter
-    if ($request->filled('brand')) {
-        $query->where('brand', $request->brand);
-    }
-
-    // Type filter (optional)
-    if ($request->filled('type')) {
-        $query->where('type', $request->type);
-    }
-
-    // Paginate and preserve filters in query string
-    $products = $query->paginate(12)->appends($request->query());
-
-    // Fetch categories and brands for dropdowns
-    $categories = Category::all();
-    $brands     = Product::whereNotNull('brand')
-                    ->select('brand')
-                    ->distinct()
-                    ->orderBy('brand')
-                    ->get();
-
-    // Render home.blade.php with filters + products
-    return view('home', compact('products', 'categories', 'brands'));
-}
 
     // --------------------
     // Admin-facing index
     // --------------------
     public function adminIndex()
     {
-        return view('products.index'); // reuse your existing Blade file
+        return view('products.index');
     }
 
     public function create()
@@ -81,7 +68,7 @@ class ProductController extends Controller
     {
         $request->validate([
             'name'        => 'required|string|max:255',
-            'brand'       => 'nullable|string|in:Sony,Canon,Nikon',
+            'brand'       => 'nullable|string|in:Sony,Canon,Nikon,Fujifilm,GoPro',
             'description' => 'nullable|string',
             'price'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:0',
@@ -90,13 +77,13 @@ class ProductController extends Controller
         ]);
 
         $product = Product::create($request->only([
-            'name','brand','description','price','stock','category_id'
+            'name', 'brand', 'description', 'price', 'stock', 'category_id'
         ]));
 
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $index => $photo) {
                 $filename = time() . '-' . $photo->getClientOriginalName();
-                $path = $photo->storeAs('products', $filename, 'public');
+                $path     = $photo->storeAs('products', $filename, 'public');
 
                 if ($index === 0) {
                     $product->photo = $path;
@@ -113,36 +100,48 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::all();
-        return view('products.edit', compact('product','categories'));
+        return view('products.edit', compact('product', 'categories'));
     }
 
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'brand'       => 'nullable|string|in:Sony,Canon,Nikon',
+            'name'        => 'nullable|string|max:255',
+            'brand'       => 'nullable|string|in:Sony,Canon,Nikon,Fujifilm,GoPro',
             'description' => 'nullable|string',
-            'price'       => 'required|numeric|min:0',
-            'stock'       => 'required|integer|min:0',
+            'price'       => 'nullable|numeric|min:0',
+            'stock'       => 'nullable|integer|min:0',
             'category_id' => 'nullable|exists:categories,id',
             'photos.*'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        $product->update($request->only([
-            'name','brand','description','price','stock','category_id'
-        ]));
+        $product->update([
+            'name'        => $request->filled('name')        ? $request->name        : $product->name,
+            'brand'       => $request->filled('brand')       ? $request->brand       : $product->brand,
+            'description' => $request->filled('description') ? $request->description : $product->description,
+            'price'       => $request->filled('price')       ? $request->price       : $product->price,
+            'stock'       => $request->filled('stock')       ? $request->stock       : $product->stock,
+            'category_id' => $request->filled('category_id') ? $request->category_id : $product->category_id,
+        ]);
 
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $index => $photo) {
                 $filename = time() . '-' . $photo->getClientOriginalName();
-                $path = $photo->storeAs('products', $filename, 'public');
+                $path     = $photo->storeAs('products', $filename, 'public');
 
-                if ($index === 0) {
+                if ($index === 0 && !$product->photo) {
                     $product->photo = $path;
                     $product->save();
                 }
 
                 $product->photos()->create(['path' => $path]);
+            }
+        }
+
+        if ($request->filled('main_photo_id')) {
+            $mainPhoto = $product->photos()->find($request->main_photo_id);
+            if ($mainPhoto) {
+                $product->update(['photo' => $mainPhoto->path]);
             }
         }
 
@@ -188,7 +187,7 @@ class ProductController extends Controller
 
     public function getData(Request $request)
     {
-        $query = Product::with(['category','photos'])->select('products.*');
+        $query = Product::with(['category', 'photos'])->select('products.*');
 
         if ($request->category_id) {
             $query->where('category_id', $request->category_id);
@@ -201,14 +200,14 @@ class ProductController extends Controller
             ->addColumn('photo', function ($product) {
                 if ($product->photos->count()) {
                     $first = $product->photos->first();
-                    return '<img src="'.asset('storage/'.$first->path).'" width="50" class="rounded">';
+                    return '<img src="' . asset('storage/' . $first->path) . '" width="50" class="rounded">';
                 }
                 return '<span class="text-muted">No photo</span>';
             })
             ->addColumn('category', fn($product) => $product->category ? $product->category->name : 'Uncategorized')
             ->addColumn('actions', fn($product) => view('products.partials.actions', compact('product'))->render())
             ->editColumn('created_at', fn($product) => $product->created_at ? $product->created_at->format('Y-m-d') : '')
-            ->rawColumns(['photo','actions'])
+            ->rawColumns(['photo', 'actions'])
             ->toJson();
     }
 
@@ -240,7 +239,7 @@ class ProductController extends Controller
 
     public function getTrashedData(Request $request)
     {
-        $query = Product::onlyTrashed()->with(['category','photos'])->select('products.*');
+        $query = Product::onlyTrashed()->with(['category', 'photos'])->select('products.*');
 
         if ($request->category_id) {
             $query->where('category_id', $request->category_id);
@@ -253,14 +252,14 @@ class ProductController extends Controller
             ->addColumn('photo', function ($product) {
                 if ($product->photos->count()) {
                     $first = $product->photos->first();
-                    return '<img src="'.asset('storage/'.$first->path).'" width="50" class="rounded">';
+                    return '<img src="' . asset('storage/' . $first->path) . '" width="50" class="rounded">';
                 }
                 return '<span class="text-muted">No photo</span>';
             })
             ->addColumn('category', fn($product) => $product->category ? $product->category->name : 'Uncategorized')
             ->addColumn('actions', fn($product) => view('products.partials.actions', compact('product'))->render())
             ->editColumn('deleted_at', fn($product) => $product->deleted_at ? $product->deleted_at->format('Y-m-d') : '')
-            ->rawColumns(['photo','actions'])
+            ->rawColumns(['photo', 'actions'])
             ->toJson();
     }
 }

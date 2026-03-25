@@ -2,7 +2,6 @@
 
 @section('content')
 <style>
-    /* Neo-Brutalist Layout Base */
     body {
         background-color: #ffffff;
         font-family: 'Courier New', Courier, monospace;
@@ -96,16 +95,17 @@
                 <div class="row">
                     <div class="col-md-8">
                         <label>Product Name</label>
-                        {{-- Changed to empty string default --}}
-                        <input type="text" name="name" value="{{ old('name', '') }}" class="form-control-retro" required placeholder="ENTER NEW NAME">
+                        <input type="text" name="name" value="{{ old('name') }}" class="form-control-retro" placeholder="{{ $product->name }}">
                     </div>
                     <div class="col-md-4">
                         <label>Brand</label>
-                        <select name="brand" class="form-control-retro" required>
-                            <option value="">-- SELECT BRAND --</option>
-                            <option value="Sony"  {{ old('brand') == 'Sony' ? 'selected' : '' }}>Sony</option>
-                            <option value="Canon" {{ old('brand') == 'Canon' ? 'selected' : '' }}>Canon</option>
-                            <option value="Nikon" {{ old('brand') == 'Nikon' ? 'selected' : '' }}>Nikon</option>
+                        <select name="brand" class="form-control-retro">
+                            <option value="">-- {{ $product->brand ?? 'SELECT BRAND' }} --</option>
+                            <option value="Sony"     {{ old('brand') == 'Sony'     ? 'selected' : '' }}>Sony</option>
+                            <option value="Canon"    {{ old('brand') == 'Canon'    ? 'selected' : '' }}>Canon</option>
+                            <option value="Nikon"    {{ old('brand') == 'Nikon'    ? 'selected' : '' }}>Nikon</option>
+                            <option value="Fujifilm" {{ old('brand') == 'Fujifilm' ? 'selected' : '' }}>Fujifilm</option>
+                            <option value="GoPro"    {{ old('brand') == 'GoPro'    ? 'selected' : '' }}>GoPro</option>
                         </select>
                     </div>
                 </div>
@@ -114,7 +114,7 @@
                     <div class="col-md-6">
                         <label>Category</label>
                         <select name="category_id" class="form-control-retro">
-                            <option value="">-- SELECT CATEGORY --</option>
+                            <option value="">-- {{ $product->category?->name ?? 'SELECT CATEGORY' }} --</option>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
                                     {{ $category->name }}
@@ -124,20 +124,17 @@
                     </div>
                     <div class="col-md-3">
                         <label>Price (PHP)</label>
-                        {{-- Changed to empty string default --}}
-                        <input type="number" step="0.01" name="price" value="{{ old('price', '') }}" class="form-control-retro" required placeholder="0.00">
+                        <input type="number" step="0.01" name="price" value="{{ old('price') }}" class="form-control-retro" placeholder="{{ $product->price }}">
                     </div>
                     <div class="col-md-3">
                         <label>Stock</label>
-                        {{-- Changed to empty string default --}}
-                        <input type="number" name="stock" value="{{ old('stock', '') }}" class="form-control-retro" required placeholder="QTY">
+                        <input type="number" name="stock" value="{{ old('stock') }}" class="form-control-retro" placeholder="{{ $product->stock }}">
                     </div>
                 </div>
 
                 <div class="mb-4">
                     <label>Description</label>
-                    {{-- Changed to empty string default --}}
-                    <textarea name="description" class="form-control-retro" rows="3" placeholder="ENTER NEW DESCRIPTION">{{ old('description', '') }}</textarea>
+                    <textarea name="description" class="form-control-retro" rows="3" placeholder="{{ $product->description }}">{{ old('description') }}</textarea>
                 </div>
 
                 <div class="mb-4 p-3" style="border: 2px dashed #000; background: #f9f9f9;">
@@ -171,7 +168,6 @@
 </div>
 
 <script>
-// JS remains unchanged as it handles functionality
 function deletePhoto(photoId) {
     if(confirm('Delete this photo?')) {
         fetch("{{ url('/admin/products/photos') }}/" + photoId, {
