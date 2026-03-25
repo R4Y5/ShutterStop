@@ -97,6 +97,12 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->group(fu
     Route::get('/admin/reports/analytics', [AdminDashboardController::class, 'analytics'])
      ->name('admin.reports.analytics');
 
+     Route::prefix('admin')->middleware('auth')->group(function () {
+        Route::get('orders/create', [\App\Http\Controllers\Admin\OrderController::class, 'create'])->name('admin.orders.create');
+        Route::post('orders', [\App\Http\Controllers\Admin\OrderController::class, 'store'])->name('admin.orders.store');
+    });
+
+
 });
 
 // --------------------

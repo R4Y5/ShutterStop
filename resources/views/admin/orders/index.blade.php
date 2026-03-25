@@ -4,6 +4,13 @@
 <div class="container">
     <h2 class="mb-4">All Customer Orders</h2>
 
+    <!-- Add Create Order button -->
+    <div class="mb-3">
+        <a href="{{ route('admin.orders.create') }}" class="btn btn-primary">
+            + Create New Order
+        </a>
+    </div>
+
     <table class="table table-bordered">
         <thead>
             <tr>
