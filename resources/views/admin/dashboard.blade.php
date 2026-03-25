@@ -116,7 +116,7 @@
 
         @role('admin')
         <div class="col-md-4">
-            <div class="admin-card user-accent h-100">
+            <div class="admin-card h-100">
                 <h2 class="card-title-retro">Manage Users</h2>
                 <p class="small text-uppercase font-weight-bold">Access Control & Roles</p>
                 <a href="{{ route('admin.users.index') }}" class="btn-admin-retro">Open Terminal</a>
