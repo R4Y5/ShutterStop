@@ -10,35 +10,49 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        // Ensure at least one category exists
-        $category = Category::firstOrCreate(['name' => 'Cameras']);
+        $dslr       = Category::firstOrCreate(['name' => 'DSLR']);
+        $mirrorless = Category::firstOrCreate(['name' => 'Mirrorless']);
+        $action     = Category::firstOrCreate(['name' => 'Action Camera']);
+        $compact    = Category::firstOrCreate(['name' => 'Compact']);
 
-        // Seed products with consistent brand values
+        // DSLR
         Product::create([
-            'name'        => 'Sony Alpha A7',
-            'brand'       => 'Sony',
-            'description' => 'Full-frame mirrorless camera',
-            'price'       => 120000,
-            'stock'       => 10,
-            'category_id' => $category->id,
-        ]);
-
-        Product::create([
-            'name'        => 'Canon EOS R6',
+            'name'        => 'Canon EOS 90D',
             'brand'       => 'Canon',
-            'description' => 'Mirrorless camera with fast autofocus',
-            'price'       => 95000,
-            'stock'       => 8,
-            'category_id' => $category->id,
+            'description' => 'High-performance DSLR with 32.5MP sensor',
+            'price'       => 85000,
+            'stock'       => 7,
+            'category_id' => $dslr->id,
         ]);
 
+        // Mirrorless
         Product::create([
-            'name'        => 'Nikon Z6 II',
-            'brand'       => 'Nikon',
-            'description' => 'Versatile mirrorless camera',
-            'price'       => 105000,
-            'stock'       => 5,
-            'category_id' => $category->id,
+            'name'        => 'Sony Alpha A7 IV',
+            'brand'       => 'Sony',
+            'description' => 'Full-frame mirrorless with 33MP sensor and 4K video',
+            'price'       => 135000,
+            'stock'       => 6,
+            'category_id' => $mirrorless->id,
+        ]);
+
+        // Action Camera
+        Product::create([
+            'name'        => 'GoPro Hero 12 Black',
+            'brand'       => 'GoPro',
+            'description' => 'Waterproof action camera with 5.3K video',
+            'price'       => 25000,
+            'stock'       => 15,
+            'category_id' => $action->id,
+        ]);
+
+        // Compact
+        Product::create([
+            'name'        => 'Canon PowerShot G7 X III',
+            'brand'       => 'Canon',
+            'description' => 'Compact camera with 1-inch sensor, ideal for vlogging',
+            'price'       => 45000,
+            'stock'       => 10,
+            'category_id' => $compact->id,
         ]);
     }
 }

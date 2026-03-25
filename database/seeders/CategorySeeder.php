@@ -16,7 +16,6 @@ class CategorySeeder extends Seeder
             'Mirrorless',
             'Action Camera',
             'Compact',
-            'Accessories',
         ];
 
         foreach ($categories as $name) {
