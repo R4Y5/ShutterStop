@@ -20,8 +20,7 @@
         text-transform: uppercase;
         margin-bottom: 30px;
         letter-spacing: -1px;
-        background: #000;
-        color: #fff;
+        color: #000000;
         display: inline-block;
         padding: 5px 20px;
     }

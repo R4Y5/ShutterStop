@@ -16,16 +16,13 @@
     .page-title {
         font-family: 'Inter', sans-serif;
         font-weight: 900;
-        font-size: 2.5rem;
+        font-size: 3rem;
         text-transform: uppercase;
         margin-bottom: 30px;
         letter-spacing: -1px;
-        background: #000;
-        color: #fff;
+        color: #000000;
         display: inline-block;
         padding: 5px 20px;
-        border: 4px solid #000;
-        box-shadow: 8px 8px 0px 0px; /* Neon Green Shadow */
     }
 
     .card-retro {
@@ -75,6 +72,15 @@
         margin-bottom: 15px;
     }
 
+    /* Action bar */
+    .action-card {
+        background: #fff;
+        border: 4px solid #000;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 10px 10px 0px 0px #000;
+    }
+
     /* Buttons */
     .btn-retro {
         border: 3px solid #000;
@@ -91,15 +97,25 @@
         font-size: 0.85rem;
     }
 
-    .btn-retro:hover { transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px #000; }
-    .btn-save { background-color: #00ff41; }
+    .btn-retro:hover {
+        background-color: #ffff00; /* Neon Yellow on hover */
+        transform: translate(2px, 2px);
+        box-shadow: 0px 0px 0px 0px #000;
+        color: #000;
+    }
+
+    .btn-save   { background-color: #00ff41; }
     .btn-cancel { background-color: #fff; }
-    .btn-list { background-color: #ffff00; }
+    .btn-list   { background-color: #ffff00; }
 </style>
 
 <div class="container retro-container">
     <div class="form-wrapper">
         <h1 class="page-title">Edit User:</h1>
+
+        <div class="action-card">
+            <a href="/admin/users" class="btn-retro">Manage Users</a>
+        </div>
 
         <div class="card-retro">
             <form action="{{ route('admin.users.update', $user) }}" method="POST" enctype="multipart/form-data">

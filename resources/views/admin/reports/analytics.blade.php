@@ -1,15 +1,128 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <h2 class="mb-4">Reports & Analytics</h2>
+<style>
+    /* Neo-Brutalist Layout Base */
+    body {
+        background-color: #ffffff;
+        font-family: 'Courier New', Courier, monospace;
+        background-image: linear-gradient(#d0d0d0 1px, transparent 1px), linear-gradient(90deg, #d0d0d0 1px, transparent 1px);
+        background-size: 50px 50px;
+    }
+
+    .retro-container { padding: 40px 20px; }
+
+    .page-title {
+        font-family: 'Inter', sans-serif;
+        font-weight: 900;
+        font-size: 2.8rem;
+        text-transform: uppercase;
+        margin-bottom: 30px;
+        letter-spacing: -1px;
+        color: #000000;
+        display: inline-block;
+        padding: 5px 20px;
+    }
+
+    /* Action bar */
+    .action-card {
+        background: #fff;
+        border: 4px solid #000;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 10px 10px 0px 0px #000;
+    }
+
+    /* Chart Cards */
+    .chart-card {
+        background: #fff;
+        border: 4px solid #000;
+        box-shadow: 10px 10px 0px 0px #000;
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+
+    .chart-card-header {
+        padding: 14px 20px;
+        font-weight: 900;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        border-bottom: 4px solid #000;
+    }
+
+    .chart-card-header.yellow { background-color: #ffff00; color: #000; }
+    .chart-card-header.green  { background-color: #00ff41; color: #000; }
+    .chart-card-header.red    { background-color: #ff4d4d; color: #000; }
+
+    .chart-card-body {
+        padding: 24px;
+    }
+
+    /* Filter Form */
+    .filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .form-control-retro {
+        border: 3px solid #000;
+        border-radius: 0;
+        padding: 8px 12px;
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: bold;
+        font-size: 0.9rem;
+        background: #fff;
+        box-shadow: 4px 4px 0px #000;
+        transition: all 0.1s;
+        box-sizing: border-box;
+    }
+
+    .form-control-retro:focus {
+        outline: none;
+        box-shadow: 0px 0px 0px #000;
+        transform: translate(2px, 2px);
+        background: #fffde7;
+    }
+
+    /* Buttons */
+    .btn-retro {
+        border: 3px solid #000;
+        border-radius: 0;
+        font-weight: 900;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        padding: 10px 20px;
+        transition: all 0.1s;
+        box-shadow: 5px 5px 0px 0px #000;
+        text-decoration: none;
+        display: inline-block;
+        cursor: pointer;
+        color: #000;
+        font-family: 'Courier New', Courier, monospace;
+        background: none;
+    }
+    .btn-retro:hover { transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px #000; color: #000; }
+    .btn-primary-retro   { background-color: #ffff00; }
+    .btn-secondary-retro { background-color: #fff; }
+</style>
+
+<div class="container retro-container">
+    <h1 class="page-title">Reports & Analytics</h1>
+
+    <div class="action-card">
+        <a href="/admin" class="btn-retro btn-secondary-retro">Admin Dashboard</a>
+    </div>
 
     <div class="row">
         <!-- Yearly Sales -->
         <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">Yearly Sales</div>
-                <div class="card-body">
+            <div class="chart-card">
+                <div class="chart-card-header yellow">Yearly Sales</div>
+                <div class="chart-card-body">
                     <canvas id="yearlySales"></canvas>
                 </div>
             </div>
@@ -17,9 +130,9 @@
 
         <!-- Product Contribution -->
         <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">Product Contribution</div>
-                <div class="card-body">
+            <div class="chart-card">
+                <div class="chart-card-header green">Product Contribution</div>
+                <div class="chart-card-body">
                     <canvas id="productContribution"></canvas>
                 </div>
             </div>
@@ -29,13 +142,13 @@
     <!-- Sales Range -->
     <div class="row">
         <div class="col-md-12 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-danger text-white">Sales in Date Range</div>
-                <div class="card-body">
-                    <form method="GET" action="{{ route('admin.reports.analytics') }}" class="mb-3 d-flex gap-2">
-                        <input type="date" name="start_date" value="{{ $start }}" class="form-control w-auto">
-                        <input type="date" name="end_date" value="{{ $end }}" class="form-control w-auto">
-                        <button type="submit" class="btn btn-danger">Filter</button>
+            <div class="chart-card">
+                <div class="chart-card-header red">Sales in Date Range</div>
+                <div class="chart-card-body">
+                    <form method="GET" action="{{ route('admin.reports.analytics') }}" class="filter-form">
+                        <input type="date" name="start_date" value="{{ $start }}" class="form-control-retro">
+                        <input type="date" name="end_date" value="{{ $end }}" class="form-control-retro">
+                        <button type="submit" class="btn-retro btn-primary-retro">Filter</button>
                     </form>
                     <canvas id="salesRange"></canvas>
                 </div>
@@ -57,7 +170,9 @@ new Chart(document.getElementById('yearlySales'), {
         datasets: [{
             label: 'Yearly Sales',
             data: {!! json_encode($yearlyData->values()) !!},
-            backgroundColor: '#007bff',
+            backgroundColor: '#ffff00',
+            borderColor: '#000',
+            borderWidth: 2,
             datalabels: { display: false }
         }]
     },
@@ -80,7 +195,9 @@ new Chart(document.getElementById('salesRange'), {
         datasets: [{
             label: 'Sales in Date Range',
             data: {!! json_encode($rangeData->values()) !!},
-            backgroundColor: '#ff6384',
+            backgroundColor: '#ff4d4d',
+            borderColor: '#000',
+            borderWidth: 2,
             datalabels: { display: false }
         }]
     },
@@ -102,7 +219,9 @@ new Chart(document.getElementById('productContribution'), {
         labels: {!! json_encode($productData->keys()) !!},
         datasets: [{
             data: {!! json_encode($productData->values()) !!},
-            backgroundColor: ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#999999'],
+            backgroundColor: ['#ffff00','#00ff41','#ff4d4d','#66d9ff','#000000'],
+            borderColor: '#000',
+            borderWidth: 2,
             datalabels: {
                 display: true,
                 formatter: function(value, ctx) {
@@ -110,7 +229,7 @@ new Chart(document.getElementById('productContribution'), {
                     let sum = data.reduce(function(a, b) { return parseFloat(a) + parseFloat(b); }, 0);
                     return (parseFloat(value) / sum * 100).toFixed(1) + "%";
                 },
-                color: '#fff',
+                color: '#000',
                 font: {
                     weight: 'bold',
                     size: 14

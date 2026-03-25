@@ -127,7 +127,7 @@
     }
 </style>
 
-<div class="container-fluid retro-container">
+<div class="container retro-container">
     <h1 class="page-title">Manage Users</h1>
 
     @if(session('success'))

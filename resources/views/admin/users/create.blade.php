@@ -16,16 +16,13 @@
     .page-title {
         font-family: 'Inter', sans-serif;
         font-weight: 900;
-        font-size: 2.5rem;
+        font-size: 3rem;
         text-transform: uppercase;
         margin-bottom: 30px;
         letter-spacing: -1px;
-        background: #000;
-        color: #fff;
+        color: #000000;
         display: inline-block;
         padding: 5px 20px;
-        border: 4px solid #000;
-        box-shadow: 8px 8px 0px 0px; /* Neon Yellow Shadow */
     }
 
     /* Card Styling */
