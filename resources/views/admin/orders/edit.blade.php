@@ -145,6 +145,13 @@
     .btn-danger-retro { background-color: #ff4d4d; color: #fff; }
     .btn-danger-retro:hover { color: #fff; }
 
+    .btn-retro:hover {
+        background-color: #ffff00; /* Neon Yellow on hover */
+        transform: translate(2px, 2px);
+        box-shadow: 0px 0px 0px 0px #000;
+        color: #000;
+    }
+
     /* Table Styling */
     .table-retro {
         width: 100%;

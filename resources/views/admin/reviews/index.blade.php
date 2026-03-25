@@ -60,6 +60,14 @@
         cursor: pointer;
         color: #000;
     }
+
+    .btn-secondary-retro:hover {
+        background-color: #ffff00; /* Neon Yellow on hover */
+        transform: translate(2px, 2px);
+        box-shadow: 0px 0px 0px 0px #000;
+        color: #000;
+    }
+    
     .btn-retro:hover { transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px #000; color: #000; }
     .btn-primary-retro { background-color: #ffff00; }
     .btn-secondary-retro { background-color: #fff; }

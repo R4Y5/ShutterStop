@@ -108,6 +108,13 @@
     .btn-retro:hover { transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px #000; color: #000; }
     .btn-primary-retro   { background-color: #ffff00; }
     .btn-secondary-retro { background-color: #fff; }
+
+    .btn-retro:hover {
+        background-color: #ffff00; /* Neon Yellow on hover */
+        transform: translate(2px, 2px);
+        box-shadow: 0px 0px 0px 0px #000;
+        color: #000;
+    }
 </style>
 
 <div class="container retro-container">
