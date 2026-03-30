@@ -59,7 +59,7 @@ foreach ($cart as $productId => $item) {
         'email'      => $order->email,
     ]);
 
-    // Optionally reduce stock
+    // educe stock
     Product::where('id', $productId)->decrement('stock', $item['quantity']);
 }
 
