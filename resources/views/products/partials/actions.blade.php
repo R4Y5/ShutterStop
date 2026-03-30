@@ -51,13 +51,5 @@
                 Restore
             </a>
         </form>
-
-        <form action="{{ route('admin.products.forceDestroy', $product->id) }}" method="POST" style="display:inline;">
-            @csrf @method('DELETE')
-            <button type="submit" class="btn-action-retro btn-force-retro"
-                onclick="return confirm('Permanently delete this product and its images?')">
-                F_Delete
-            </button>
-        </form>
     @endif
 </div>
